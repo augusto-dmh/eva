@@ -7,6 +7,7 @@ use App\Http\Controllers\PayrollCycleController;
 use App\Http\Controllers\PayrollEntryController;
 use App\Http\Controllers\PjInvoiceController;
 use App\Http\Controllers\SelfServiceController;
+use App\Http\Controllers\TerminationController;
 use App\Http\Controllers\VacationBatchController;
 use Illuminate\Support\Facades\Route;
 use Laravel\Fortify\Features;
@@ -62,6 +63,20 @@ Route::middleware(['auth', 'verified'])->group(function () {
         ->middleware('can:admin');
     Route::put('/admission-checklist-items/{admissionChecklistItem}', [AdmissionChecklistItemController::class, 'update'])
         ->name('admission-checklist-items.update')
+        ->middleware('can:admin');
+
+    // Termination workflow
+    Route::get('/collaborators/{collaborator}/termination/create', [TerminationController::class, 'create'])
+        ->name('terminations.create')
+        ->middleware('can:admin');
+    Route::post('/collaborators/{collaborator}/termination', [TerminationController::class, 'store'])
+        ->name('terminations.store')
+        ->middleware('can:admin');
+    Route::get('/termination-records/{terminationRecord}', [TerminationController::class, 'show'])
+        ->name('termination-records.show')
+        ->middleware('can:admin');
+    Route::put('/termination-records/{terminationRecord}', [TerminationController::class, 'update'])
+        ->name('termination-records.update')
         ->middleware('can:admin');
 
     // Collaborator self-service

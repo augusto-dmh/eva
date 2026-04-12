@@ -94,4 +94,9 @@ class Collaborator extends Model
     {
         return $this->hasOne(AdmissionChecklist::class);
     }
+
+    public function terminationRecord(): HasOne
+    {
+        return $this->hasOne(TerminationRecord::class);
+    }
 }
