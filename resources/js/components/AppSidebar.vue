@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { Link } from '@inertiajs/vue3';
-import { BookOpen, FolderGit2, LayoutGrid } from 'lucide-vue-next';
-import AppLogo from '@/components/AppLogo.vue';
+import { Link, usePage } from '@inertiajs/vue3';
+import { LayoutDashboard, User, Users } from 'lucide-vue-next';
+import { computed } from 'vue';
 import NavFooter from '@/components/NavFooter.vue';
 import NavMain from '@/components/NavMain.vue';
 import NavUser from '@/components/NavUser.vue';
@@ -15,28 +15,44 @@ import {
     SidebarMenuItem,
 } from '@/components/ui/sidebar';
 import { dashboard } from '@/routes';
+import { index as collaboratorsIndex } from '@/routes/collaborators';
+import { profile as selfServiceProfile } from '@/routes/self-service';
 import type { NavItem } from '@/types';
 
-const mainNavItems: NavItem[] = [
+const page = usePage();
+const userRole = computed(() => page.props.auth.user.role);
+
+const adminNavItems: NavItem[] = [
     {
         title: 'Dashboard',
         href: dashboard(),
-        icon: LayoutGrid,
+        icon: LayoutDashboard,
+    },
+    {
+        title: 'Colaboradores',
+        href: collaboratorsIndex(),
+        icon: Users,
     },
 ];
 
-const footerNavItems: NavItem[] = [
+const collaboratorNavItems: NavItem[] = [
     {
-        title: 'Repository',
-        href: 'https://github.com/laravel/vue-starter-kit',
-        icon: FolderGit2,
+        title: 'Dashboard',
+        href: dashboard(),
+        icon: LayoutDashboard,
     },
     {
-        title: 'Documentation',
-        href: 'https://laravel.com/docs/starter-kits#vue',
-        icon: BookOpen,
+        title: 'Meu Perfil',
+        href: selfServiceProfile(),
+        icon: User,
     },
 ];
+
+const mainNavItems = computed<NavItem[]>(() =>
+    userRole.value === 'admin' ? adminNavItems : collaboratorNavItems,
+);
+
+const footerNavItems: NavItem[] = [];
 </script>
 
 <template>
@@ -46,7 +62,21 @@ const footerNavItems: NavItem[] = [
                 <SidebarMenuItem>
                     <SidebarMenuButton size="lg" as-child>
                         <Link :href="dashboard()">
-                            <AppLogo />
+                            <div
+                                class="flex aspect-square size-8 items-center justify-center rounded-md bg-primary text-primary-foreground"
+                            >
+                                <span class="text-xs font-bold">E</span>
+                            </div>
+                            <div class="ml-1 grid flex-1 text-left text-sm">
+                                <span
+                                    class="truncate font-semibold text-primary"
+                                    >EVA</span
+                                >
+                                <span
+                                    class="truncate text-xs text-muted-foreground"
+                                    >Portal do Colaborador</span
+                                >
+                            </div>
                         </Link>
                     </SidebarMenuButton>
                 </SidebarMenuItem>
