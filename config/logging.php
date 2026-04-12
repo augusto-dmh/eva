@@ -127,6 +127,13 @@ return [
             'path' => storage_path('logs/laravel.log'),
         ],
 
+        'slack_simulation' => [
+            'driver' => 'daily',
+            'path' => storage_path('logs/slack.log'),
+            'level' => 'debug',
+            'days' => 14,
+        ],
+
     ],
 
 ];
