@@ -2,111 +2,125 @@
 
 namespace Database\Seeders;
 
+use App\Enums\CollaboratorStatus;
 use App\Enums\ContractType;
-use App\Enums\PlrEntryStatus;
 use App\Enums\PlrRoundStatus;
 use App\Enums\PlrSyndicateStatus;
 use App\Models\Collaborator;
-use App\Models\PlrCommitteeMember;
-use App\Models\PlrEntry;
 use App\Models\PlrRound;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\DB;
 
 class PlrSeeder extends Seeder
 {
     public function run(): void
     {
-        $admin = User::where('email', 'admin@clubedovalor.com.br')->firstOrFail();
+        $admin = User::where('email', 'admin@clubedovalor.com.br')->first();
 
-        $round = PlrRound::create([
-            'ano_referencia' => 2025,
-            'status' => PlrRoundStatus::Simulado,
-            'status_sindicato' => PlrSyndicateStatus::Aprovado,
-            'data_aprovacao_sindicato' => '2025-09-15',
-            'valor_total_distribuido' => 500000.00,
-            'documento_politica_revisado' => true,
-            'criado_por_id' => $admin->id,
-        ]);
-
-        // Eligible: CLT with data_admissao before 2025-07-01
-        $eligibleCollaborators = Collaborator::where('tipo_contrato', ContractType::Clt)
-            ->whereNull('data_desligamento')
-            ->whereDate('data_admissao', '<', '2025-07-01')
+        $collaborators = Collaborator::where('tipo_contrato', ContractType::Clt)
+            ->where('status', CollaboratorStatus::Ativo)
             ->get();
 
-        $endOf2025 = Carbon::create(2025, 12, 31);
+        $rounds = [
+            [
+                'ano_referencia'             => 2024,
+                'status'                     => PlrRoundStatus::Pago,
+                'status_sindicato'           => PlrSyndicateStatus::Aprovado,
+                'data_aprovacao_sindicato'   => '2024-11-15',
+                'valor_total_distribuido'    => 850_000.00,
+                'documento_politica_revisado' => true,
+                'observacoes'               => 'PLR 2024 — distribuído em dezembro/2024.',
+                'entry_status'              => 'pago',
+            ],
+            [
+                'ano_referencia'             => 2025,
+                'status'                     => PlrRoundStatus::Simulado,
+                'status_sindicato'           => PlrSyndicateStatus::Aprovado,
+                'data_aprovacao_sindicato'   => '2025-11-10',
+                'valor_total_distribuido'    => 920_000.00,
+                'documento_politica_revisado' => true,
+                'observacoes'               => 'Simulação finalizada — aguardando aprovação diretoria.',
+                'entry_status'              => 'simulado',
+            ],
+            [
+                'ano_referencia'             => 2026,
+                'status'                     => PlrRoundStatus::ComiteCriado,
+                'status_sindicato'           => PlrSyndicateStatus::NaoIniciado,
+                'data_aprovacao_sindicato'   => null,
+                'valor_total_distribuido'    => null,
+                'documento_politica_revisado' => false,
+                'observacoes'               => 'Comitê de trabalhadores constituído em 2026-03-10.',
+                'entry_status'              => null,
+            ],
+        ];
 
-        // Calculate weights
-        $weights = $eligibleCollaborators->map(function ($collaborator) use ($endOf2025) {
-            $admissao = Carbon::parse($collaborator->data_admissao);
-            $meses = min(12, (int) $admissao->diffInMonths($endOf2025) + 1);
+        $now = now();
 
-            return [
-                'collaborator' => $collaborator,
-                'meses' => $meses,
-                'peso' => (float) $collaborator->salario_base * $meses,
-            ];
-        });
-
-        $pesoTotal = $weights->sum('peso');
-
-        foreach ($weights as $item) {
-            $collaborator = $item['collaborator'];
-            $meses = $item['meses'];
-            $peso = $item['peso'];
-
-            $valorSimulado = $pesoTotal > 0
-                ? round(($peso / $pesoTotal) * 500000, 2)
-                : 0;
-
-            $descontoIrrf = $this->calcularIrrfPlr($valorSimulado);
-
-            PlrEntry::create([
-                'plr_round_id' => $round->id,
-                'collaborator_id' => $collaborator->id,
-                'media_salarios_ano' => $collaborator->salario_base,
-                'meses_trabalhados' => $meses,
-                'valor_simulado' => $valorSimulado,
-                'valor_pago' => null,
-                'desconto_irrf' => $descontoIrrf,
-                'status' => PlrEntryStatus::Simulado,
+        foreach ($rounds as $roundData) {
+            $round = PlrRound::create([
+                'ano_referencia'              => $roundData['ano_referencia'],
+                'status'                      => $roundData['status']->value,
+                'status_sindicato'            => $roundData['status_sindicato']->value,
+                'data_aprovacao_sindicato'    => $roundData['data_aprovacao_sindicato'],
+                'valor_total_distribuido'     => $roundData['valor_total_distribuido'],
+                'documento_politica_path'     => null,
+                'documento_politica_revisado' => $roundData['documento_politica_revisado'],
+                'observacoes'                 => $roundData['observacoes'],
+                'criado_por_id'               => $admin?->id,
             ]);
-        }
 
-        // Committee members: pick up to 3 CLT collaborators
-        $committeePool = Collaborator::where('tipo_contrato', ContractType::Clt)
-            ->whereNull('data_desligamento')
-            ->limit(3)
-            ->get();
+            // Create entries only for rounds with a simulation/payment
+            if ($roundData['entry_status'] !== null && $roundData['valor_total_distribuido']) {
+                $entries = [];
+                $countCollab  = $collaborators->count();
+                $baseDistrib  = $roundData['valor_total_distribuido'] / max($countCollab, 1);
+                $referenceEnd = Carbon::create($roundData['ano_referencia'], 12, 31);
 
-        $papeis = ['Representante dos Trabalhadores', 'Representante dos Trabalhadores', 'Secretário'];
+                foreach ($collaborators as $collab) {
+                    $salario  = (float) ($collab->salario_base ?? 3000);
+                    $admissao = Carbon::parse($collab->data_admissao);
+                    $meses    = min(12, max(1, (int) $admissao->diffInMonths($referenceEnd)));
+                    $fator    = $salario / 5000;
+                    $valor    = round($baseDistrib * $fator, 2);
+                    $irrf     = $valor > 1903 ? round(($valor - 1903) * 0.075, 2) : 0;
 
-        foreach ($committeePool as $index => $collaborator) {
-            PlrCommitteeMember::create([
-                'plr_round_id' => $round->id,
-                'collaborator_id' => $collaborator->id,
-                'legal_entity_id' => $collaborator->legal_entity_id,
-                'papel' => $papeis[$index] ?? 'Representante dos Trabalhadores',
-                'ativo' => true,
-            ]);
-        }
-    }
+                    $entries[] = [
+                        'plr_round_id'      => $round->id,
+                        'collaborator_id'   => $collab->id,
+                        'media_salarios_ano' => $salario,
+                        'meses_trabalhados' => $meses,
+                        'valor_simulado'    => $valor,
+                        'valor_pago'        => $roundData['entry_status'] === 'pago' ? $valor : null,
+                        'desconto_irrf'     => $irrf,
+                        'status'            => $roundData['entry_status'],
+                        'created_at'        => $now,
+                        'updated_at'        => $now,
+                    ];
+                }
 
-    private function calcularIrrfPlr(float $valor): float
-    {
-        // PLR specific IRRF table 2025
-        if ($valor <= 6000.00) {
-            return 0;
-        } elseif ($valor <= 9000.00) {
-            return round($valor * 0.075 - 450, 2);
-        } elseif ($valor <= 12000.00) {
-            return round($valor * 0.15 - 1125, 2);
-        } elseif ($valor <= 15000.00) {
-            return round($valor * 0.225 - 2025, 2);
-        } else {
-            return round($valor * 0.275 - 2775, 2);
+                foreach (array_chunk($entries, 100) as $chunk) {
+                    DB::table('plr_entries')->insert($chunk);
+                }
+            }
+
+            // PLR committee members (5–7 workers per round, required: legal_entity_id, papel)
+            $committeeSize = rand(5, 7);
+            $committee     = $collaborators->random(min($committeeSize, $collaborators->count()));
+            $commitRows    = [];
+            foreach ($committee as $member) {
+                $commitRows[] = [
+                    'plr_round_id'    => $round->id,
+                    'collaborator_id' => $member->id,
+                    'legal_entity_id' => $member->legal_entity_id,
+                    'papel'           => fake()->randomElement(['Titular', 'Suplente']),
+                    'ativo'           => true,
+                    'created_at'      => $now,
+                    'updated_at'      => $now,
+                ];
+            }
+            DB::table('plr_committee_members')->insert($commitRows);
         }
     }
 }
