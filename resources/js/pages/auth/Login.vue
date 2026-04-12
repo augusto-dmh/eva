@@ -29,7 +29,7 @@ defineProps<{
 
     <div
         v-if="status"
-        class="mb-4 rounded-lg border border-emerald-500/20 bg-emerald-500/10 p-3 text-center text-sm text-emerald-400"
+        class="mb-4 rounded-lg border border-blue-500/20 bg-blue-50 p-3 text-center text-sm text-blue-700"
     >
         {{ status }}
     </div>
@@ -57,7 +57,7 @@ defineProps<{
                     :tabindex="1"
                     autocomplete="email"
                     placeholder="nome@clubedovalor.com.br"
-                    class="h-11 border-white/10 bg-white/5 text-white placeholder:text-white/30 focus:border-blue-500/50 focus:bg-white/8"
+                    class="h-11"
                 />
                 <InputError :message="errors.email" />
             </div>
@@ -73,7 +73,7 @@ defineProps<{
                     <TextLink
                         v-if="canResetPassword"
                         :href="request()"
-                        class="text-xs text-blue-400/70 hover:text-blue-400"
+                        class="text-xs text-blue-600 hover:text-blue-800"
                         :tabindex="5"
                     >
                         Esqueceu?
@@ -86,7 +86,7 @@ defineProps<{
                     :tabindex="2"
                     autocomplete="current-password"
                     placeholder="••••••••"
-                    class="h-11 border-white/10 bg-white/5 text-white placeholder:text-white/30 focus:border-blue-500/50"
+                    class="h-11"
                 />
                 <InputError :message="errors.password" />
             </div>
