@@ -17,10 +17,17 @@ class DpAssistantController extends Controller
 
     public function ask(Request $request): JsonResponse
     {
-        $request->validate(['question' => 'required|string|max:1000']);
+        $request->validate([
+            'question' => 'required|string|max:1000',
+            'conversation_id' => 'nullable|string|max:36',
+        ]);
 
-        $answer = (new DpAssistantAgent)->ask($request->question);
+        $result = (new DpAssistantAgent)->ask(
+            $request->question,
+            $request->user(),
+            $request->conversation_id,
+        );
 
-        return response()->json(['answer' => $answer]);
+        return response()->json($result);
     }
 }

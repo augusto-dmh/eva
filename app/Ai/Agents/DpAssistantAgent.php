@@ -8,13 +8,15 @@ use App\Ai\Tools\DissidioInfoTool;
 use App\Ai\Tools\PayrollStatusTool;
 use App\Ai\Tools\VacationEligibilityTool;
 use Carbon\Carbon;
+use Laravel\Ai\Concerns\RemembersConversations;
 use Laravel\Ai\Contracts\Agent;
+use Laravel\Ai\Contracts\Conversational;
 use Laravel\Ai\Contracts\HasTools;
 use Laravel\Ai\Promptable;
 
-class DpAssistantAgent implements Agent, HasTools
+class DpAssistantAgent implements Agent, Conversational, HasTools
 {
-    use Promptable;
+    use Promptable, RemembersConversations;
 
     public function instructions(): string
     {
@@ -58,12 +60,28 @@ PROMPT;
         ];
     }
 
-    public function ask(string $question): string
+    public function ask(string $question, object $user, ?string $conversationId = null): array
     {
-        return $this->prompt(
+        if ($conversationId) {
+            $this->continue($conversationId, $user);
+        } else {
+            $this->forUser($user);
+        }
+
+        $response = $this->prompt(
             $question,
             provider: config('ai.default'),
             model: config('ai.default_model'),
-        )->text;
+        );
+
+        return [
+            'answer' => $response->text,
+            'conversation_id' => $response->conversationId,
+        ];
+    }
+
+    protected function maxConversationMessages(): int
+    {
+        return 20;
     }
 }

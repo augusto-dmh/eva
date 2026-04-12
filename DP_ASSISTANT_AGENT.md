@@ -219,7 +219,38 @@ O LLM passa a considerar a nova ferramenta automaticamente em todas as conversas
 
 ---
 
+## Memória de conversa
+
+O agente mantém contexto entre mensagens dentro de uma mesma conversa. Isso permite perguntas de acompanhamento como:
+
+1. "Quem está elegível para férias agora?" → lista de nomes
+2. "Quais desses são do departamento de tecnologia?" → o agente filtra a lista anterior
+
+### Como funciona
+
+O Laravel AI SDK persiste automaticamente as mensagens no banco de dados via `RemembersConversations` + `RememberConversation` middleware.
+
+```
+1ª mensagem → frontend envia { question, conversation_id: null }
+            → backend chama forUser($user) → nova conversa criada
+            → resposta inclui conversation_id
+
+2ª mensagem → frontend envia { question, conversation_id: "abc-123" }
+            → backend chama continue("abc-123", $user) → histórico carregado do DB
+            → LLM recebe todas as mensagens anteriores + nova pergunta
+```
+
+**Limite:** 20 mensagens de contexto (configurável em `maxConversationMessages()`).
+
+**Nova conversa:** O botão "Nova conversa" no chat reseta o `conversation_id` para `null`, iniciando uma conversa limpa sem recarregar a página.
+
+**Persistência:** As conversas ficam nas tabelas `agent_conversations` e `agent_conversation_messages` (migration do SDK).
+
+---
+
 ## Exemplos de perguntas suportadas
+
+### Consultas ao Sistema Eva (invocam ferramentas)
 
 | Pergunta | Ferramentas invocadas |
 |---------|----------------------|
@@ -229,8 +260,13 @@ O LLM passa a considerar a nova ferramenta automaticamente em todas as conversas
 | "Quem foi admitido nos últimos 3 meses?" | `CollaboratorStatsTool` |
 | "Qual o percentual do último dissídio?" | `DissidioInfoTool` |
 | "Quando vence a segunda parcela do 13°?" | `AnnualObligationsTool` |
-| "Como calculo o DSR sobre comissões?" | *nenhuma — responde pelo conhecimento embutido* |
-| "Quais são as faixas de INSS de 2025?" | *nenhuma — responde pelo conhecimento embutido* |
+
+### Conhecimento Trabalhista (responde pelo conhecimento embutido)
+
+| Pergunta | Ferramentas invocadas |
+|---------|----------------------|
+| "Como calculo o DSR sobre comissões?" | *nenhuma — conhecimento embutido* |
+| "Quais são as faixas de INSS de 2025?" | *nenhuma — conhecimento embutido* |
 | "Simule o 13° de um colaborador com salário R$ 5.000" | *nenhuma — calcula pelo conhecimento embutido* |
 
 ---
