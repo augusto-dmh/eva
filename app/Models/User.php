@@ -7,6 +7,7 @@ use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Fortify\TwoFactorAuthenticatable;
@@ -41,5 +42,10 @@ class User extends Authenticatable
     public function isCollaborator(): bool
     {
         return $this->role === UserRole::Collaborator;
+    }
+
+    public function collaborator(): HasOne
+    {
+        return $this->hasOne(Collaborator::class);
     }
 }
