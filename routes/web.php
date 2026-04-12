@@ -1,6 +1,8 @@
 <?php
 
 use App\Http\Controllers\CollaboratorController;
+use App\Http\Controllers\PayrollCycleController;
+use App\Http\Controllers\PayrollEntryController;
 use App\Http\Controllers\SelfServiceController;
 use Illuminate\Support\Facades\Route;
 use Laravel\Fortify\Features;
@@ -15,6 +17,15 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // Admin-only collaborator CRUD
     Route::resource('collaborators', CollaboratorController::class)
         ->except(['destroy'])
+        ->middleware('can:admin');
+
+    // Admin-only payroll
+    Route::resource('payroll-cycles', PayrollCycleController::class)
+        ->only(['index', 'store', 'show', 'update'])
+        ->middleware('can:admin');
+
+    Route::put('payroll-cycles/{payrollCycle}/entries/{payrollEntry}', [PayrollEntryController::class, 'update'])
+        ->name('payroll-cycles.entries.update')
         ->middleware('can:admin');
 
     // Collaborator self-service
