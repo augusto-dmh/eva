@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { Head, Link } from '@inertiajs/vue3';
+import HistoryTimeline from '@/components/HistoryTimeline.vue';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -10,11 +11,14 @@ import type {
     Collaborator,
     CollaboratorStatus,
     ContractType,
+    ProfessionalHistoryEntry,
 } from '@/types/collaborator';
 import type { TerminationRecord } from '@/types/termination';
 
 type Props = {
-    collaborator: Collaborator;
+    collaborator: Collaborator & {
+        professional_history?: ProfessionalHistoryEntry[];
+    };
     checklist: AdmissionChecklist | null;
     terminationRecord: TerminationRecord | null;
 };
@@ -477,6 +481,18 @@ function formatDate(value: string | null) {
                         Ver Detalhes da Rescisão
                     </Link>
                 </Button>
+            </CardContent>
+        </Card>
+
+        <!-- Histórico Profissional -->
+        <Card>
+            <CardHeader>
+                <CardTitle>Histórico Profissional</CardTitle>
+            </CardHeader>
+            <CardContent>
+                <HistoryTimeline
+                    :entries="collaborator.professional_history ?? []"
+                />
             </CardContent>
         </Card>
 

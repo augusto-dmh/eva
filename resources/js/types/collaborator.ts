@@ -1,4 +1,17 @@
 export type ContractType = 'clt' | 'pj' | 'estagiario' | 'socio';
+
+export interface ProfessionalHistoryEntry {
+    id: number;
+    collaborator_id: number;
+    tipo_evento: string;
+    data_efetivacao: string;
+    campo_alterado: string;
+    valor_anterior: string | null;
+    valor_novo: string | null;
+    motivo: string;
+    observacoes: string | null;
+    created_at: string;
+}
 export type CollaboratorStatus = 'ativo' | 'desligado' | 'afastado';
 export type CommissionType = 'none' | 'closer' | 'advisor';
 
