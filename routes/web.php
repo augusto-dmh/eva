@@ -3,6 +3,7 @@
 use App\Http\Controllers\AdmissionChecklistController;
 use App\Http\Controllers\AdmissionChecklistItemController;
 use App\Http\Controllers\CollaboratorController;
+use App\Http\Controllers\DissidioController;
 use App\Http\Controllers\PayrollCycleController;
 use App\Http\Controllers\PayrollEntryController;
 use App\Http\Controllers\PjInvoiceController;
@@ -78,6 +79,14 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::put('/termination-records/{terminationRecord}', [TerminationController::class, 'update'])
         ->name('termination-records.update')
         ->middleware('can:admin');
+
+    // Dissídio workflow
+    Route::get('/dissidio-rounds', [DissidioController::class, 'index'])->name('dissidio-rounds.index')->middleware('can:admin');
+    Route::get('/dissidio-rounds/create', [DissidioController::class, 'create'])->name('dissidio-rounds.create')->middleware('can:admin');
+    Route::post('/dissidio-rounds', [DissidioController::class, 'store'])->name('dissidio-rounds.store')->middleware('can:admin');
+    Route::get('/dissidio-rounds/{dissidioRound}', [DissidioController::class, 'show'])->name('dissidio-rounds.show')->middleware('can:admin');
+    Route::post('/dissidio-rounds/{dissidioRound}/simulate', [DissidioController::class, 'simulate'])->name('dissidio-rounds.simulate')->middleware('can:admin');
+    Route::post('/dissidio-rounds/{dissidioRound}/apply', [DissidioController::class, 'apply'])->name('dissidio-rounds.apply')->middleware('can:admin');
 
     // Collaborator self-service
     Route::get('self-service/profile', [SelfServiceController::class, 'profile'])
