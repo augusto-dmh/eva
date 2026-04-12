@@ -22,7 +22,7 @@ defineOptions({
 function statusClass(status: PjInvoiceStatus): string {
     switch (status) {
         case 'pendente':
-            return 'bg-yellow-100 text-yellow-800';
+            return 'bg-blue-100 text-blue-800';
         case 'recebida':
             return 'bg-blue-100 text-blue-800';
         case 'em_revisao':

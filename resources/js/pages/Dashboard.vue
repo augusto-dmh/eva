@@ -84,10 +84,10 @@ const formatCurrency = (value: number) =>
 const payrollStatusColor = computed(() => {
     const map: Record<string, string> = {
         aberto: '#0096ca',
-        aguardando_nf_pj: '#f59e0b',
-        aguardando_comissoes: '#f97316',
+        aguardando_nf_pj: '#3b82f6',
+        aguardando_comissoes: '#60a5fa',
         em_revisao: '#8b5cf6',
-        conferido_contabilidade: '#10b981',
+        conferido_contabilidade: '#2563eb',
         fechado: '#475569',
     };
 
@@ -114,7 +114,7 @@ const kpis = computed(() => [
             ? `Próximo: ${props.nextVacationBatch}`
             : 'Nenhum pendente',
         icon: CalendarDays,
-        color: '#f59e0b',
+        color: '#3b82f6',
         trend: props.activeVacationBatches > 0 ? 'Em andamento' : 'Tudo em dia',
         href: '/vacation-batches',
     },
@@ -127,7 +127,7 @@ const kpis = computed(() => [
             : '—',
         sub: props.dissidioSummary?.label ?? 'Sem dados',
         icon: TrendingUp,
-        color: '#10b981',
+        color: '#2563eb',
         trend: props.dissidioSummary?.label ?? '—',
         href: '/dissidio-rounds',
     },
@@ -334,9 +334,9 @@ const kpis = computed(() => [
                                 :style="{
                                     background:
                                         item.tipo === 'success'
-                                            ? '#10b981'
+                                            ? '#2563eb'
                                             : item.tipo === 'warn'
-                                              ? '#f59e0b'
+                                              ? '#3b82f6'
                                               : '#0096ca',
                                 }"
                             />

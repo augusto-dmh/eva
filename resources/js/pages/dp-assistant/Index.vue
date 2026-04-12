@@ -217,18 +217,18 @@ onUnmounted(() => {
 const systemCapabilities = [
     {
         icon: CalendarDays,
-        color: '#f59e0b',
-        bg: 'rgba(245,158,11,0.08)',
-        border: 'rgba(245,158,11,0.2)',
+        color: '#2563eb',
+        bg: 'rgba(37,99,235,0.08)',
+        border: 'rgba(37,99,235,0.2)',
         title: 'Elegibilidade de Férias',
         description: 'Consulte quem está elegível, períodos aquisitivos e lotes ativos.',
         example: 'Quais colaboradores CLT completam 12 meses de período aquisitivo em outubro?',
     },
     {
         icon: Clock,
-        color: '#10b981',
-        bg: 'rgba(16,185,129,0.08)',
-        border: 'rgba(16,185,129,0.2)',
+        color: '#2563eb',
+        bg: 'rgba(37,99,235,0.08)',
+        border: 'rgba(37,99,235,0.2)',
         title: 'Status da Folha',
         description: 'Ciclos de pagamento, valores brutos/líquidos e notas fiscais PJ pendentes.',
         example: 'Qual o status da folha atual e quantas NFs PJ estão pendentes?',
@@ -248,9 +248,9 @@ const systemCapabilities = [
 const generalCapabilities = [
     {
         icon: Gift,
-        color: '#10b981',
-        bg: 'rgba(16,185,129,0.08)',
-        border: 'rgba(16,185,129,0.2)',
+        color: '#2563eb',
+        bg: 'rgba(37,99,235,0.08)',
+        border: 'rgba(37,99,235,0.2)',
         title: '13° Salário',
         description: 'Cálculo pro-rata, média de comissões, parcelas e deduções INSS/IRRF.',
         example: 'Como calcular o 13° salário de um colaborador admitido em maio com salário de R$ 5.000 e média de comissões de R$ 2.400?',
@@ -266,25 +266,25 @@ const generalCapabilities = [
     },
     {
         icon: TrendingUp,
-        color: '#8b5cf6',
-        bg: 'rgba(139,92,246,0.08)',
-        border: 'rgba(139,92,246,0.2)',
+        color: '#2563eb',
+        bg: 'rgba(59,130,246,0.08)',
+        border: 'rgba(59,130,246,0.2)',
         title: 'Dissídio Coletivo',
         description: 'Retroativos, cálculo do diferencial por competência, aplicação e INSS/FGTS.',
         example: 'O dissídio de 4,81% foi aplicado em janeiro com data-base em setembro. Quantas competências de retroativo e como calcular o abono pecuniário?',
     },
     {
         icon: HandCoins,
-        color: '#f97316',
-        bg: 'rgba(249,115,22,0.08)',
-        border: 'rgba(249,115,22,0.2)',
+        color: '#2563eb',
+        bg: 'rgba(37,99,235,0.08)',
+        border: 'rgba(37,99,235,0.2)',
         title: 'Contribuição Assistencial',
         description: 'Prazos, valor (2 dias de salário), parcelamento em 4x e registro de oposição.',
         example: 'Qual é o prazo para um colaborador registrar oposição à contribuição assistencial? Como deve ser feito e o que comprova?',
     },
     {
         icon: Trophy,
-        color: '#a78bfa',
+        color: '#2563eb',
         bg: 'rgba(167,139,250,0.08)',
         border: 'rgba(167,139,250,0.2)',
         title: 'PLR — Participação nos Lucros',
@@ -772,7 +772,7 @@ const isEmpty = computed(() => messages.value.length === 0 && !isFetching.value 
                                         v-for="s in generalSuggestions"
                                         :key="s"
                                         class="rounded-full border px-3 py-1.5 text-xs transition-all hover:opacity-80"
-                                        style="background:rgba(139,92,246,0.06);border-color:rgba(139,92,246,0.2);color:#8b5cf6;"
+                                        style="background:rgba(59,130,246,0.06);border-color:rgba(59,130,246,0.2);color:#3b82f6;"
                                         @click="sendMessage(s)"
                                     >
                                         {{ s }}

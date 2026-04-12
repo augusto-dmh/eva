@@ -39,7 +39,7 @@ function statusClass(status: string): string {
         case 'simulado':
             return 'bg-blue-100 text-blue-800';
         case 'aguardando_aprovacao':
-            return 'bg-yellow-100 text-yellow-800';
+            return 'bg-blue-100 text-blue-800';
         case 'aplicado':
             return 'bg-green-100 text-green-800';
         case 'relatorio_gerado':
