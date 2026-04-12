@@ -317,13 +317,11 @@ async function sendMessage(text?: string) {
         timestamp: new Date(),
     });
 
-    let assistantMsg: Message | null = null;
-
     await scrollToBottom();
     loading.value = true;
 
     try {
-        const response = await fetch('/dp-assistant/stream', {
+        const response = await fetch('/dp-assistant/ask', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -334,56 +332,16 @@ async function sendMessage(text?: string) {
 
         if (!response.ok) throw new Error(`HTTP ${response.status}`);
 
-        const reader = response.body!.getReader();
-        const decoder = new TextDecoder();
-        let buffer = '';
-
-        while (true) {
-            const { done, value } = await reader.read();
-            if (done) break;
-
-            buffer += decoder.decode(value, { stream: true });
-            const lines = buffer.split('\n');
-            buffer = lines.pop() ?? '';
-
-            for (const line of lines) {
-                if (!line.startsWith('data: ')) continue;
-                const json = line.slice(6).trim();
-                if (!json || json === '[DONE]') continue;
-
-                try {
-                    const event = JSON.parse(json);
-                    if (event.type === 'chunk' && event.delta) {
-                        if (!assistantMsg) {
-                            loading.value = false;
-                            assistantMsg = {
-                                id: ++messageIdCounter,
-                                role: 'assistant',
-                                text: '',
-                                timestamp: new Date(),
-                            };
-                            messages.value.push(assistantMsg);
-                        }
-                        assistantMsg.text += event.delta;
-                        await scrollToBottom();
-                    } else if (event.type === 'done') {
-                        if (event.conversation_id) {
-                            conversationId.value = event.conversation_id;
-                        }
-                        if (isNewConversation) fetchConversations();
-                    }
-                } catch { /* skip malformed JSON */ }
-            }
-        }
-
-        if (!assistantMsg) {
-            messages.value.push({
-                id: ++messageIdCounter,
-                role: 'assistant',
-                text: 'Não foi possível obter uma resposta.',
-                timestamp: new Date(),
-            });
-        }
+        const data = await response.json();
+        const isNew = isNewConversation && data.conversation_id;
+        conversationId.value = data.conversation_id ?? conversationId.value;
+        messages.value.push({
+            id: ++messageIdCounter,
+            role: 'assistant',
+            text: data.answer ?? 'Não foi possível obter uma resposta.',
+            timestamp: new Date(),
+        });
+        if (isNew) fetchConversations();
     } catch {
         error.value = 'Erro ao conectar ao assistente. Verifique se AI_DEFAULT_PROVIDER e a chave da API estão configurados corretamente no .env.';
     } finally {
