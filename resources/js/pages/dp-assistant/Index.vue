@@ -199,13 +199,13 @@ function formatConversationDate(dateStr: string): string {
 
 onMounted(() => {
     fetchConversations();
-    const inset = document.querySelector('[data-slot="sidebar-inset"]') as HTMLElement | null;
-    if (inset) inset.style.overflow = 'hidden';
+    document.documentElement.style.overflow = 'hidden';
+    document.body.style.overflow = 'hidden';
 });
 
 onUnmounted(() => {
-    const inset = document.querySelector('[data-slot="sidebar-inset"]') as HTMLElement | null;
-    if (inset) inset.style.overflow = '';
+    document.documentElement.style.overflow = '';
+    document.body.style.overflow = '';
 });
 
 // ── Capabilities: System-specific (tool-backed) ─────────────────────────────
