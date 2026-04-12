@@ -504,7 +504,7 @@ const isEmpty = computed(() => messages.value.length === 0 && !loading.value);
 <template>
     <Head title="Assistente de DP" />
 
-    <div class="flex min-h-0 flex-1 flex-col overflow-hidden">
+    <div class="flex flex-col overflow-hidden" style="height:calc(100dvh - 3.5rem);">
 
         <!-- Two-column layout -->
         <div class="grid min-h-0 flex-1 grid-cols-1 overflow-hidden lg:grid-cols-[380px_1fr]">
