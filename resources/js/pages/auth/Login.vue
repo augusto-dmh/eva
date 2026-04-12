@@ -13,8 +13,8 @@ import { request } from '@/routes/password';
 
 defineOptions({
     layout: {
-        title: 'Log in to your account',
-        description: 'Enter your email and password below to log in',
+        title: 'Bem-vindo de volta',
+        description: 'Acesse com seu e-mail corporativo',
     },
 });
 
@@ -25,12 +25,9 @@ defineProps<{
 </script>
 
 <template>
-    <Head title="Log in" />
+    <Head title="Entrar" />
 
-    <div
-        v-if="status"
-        class="mb-4 text-center text-sm font-medium text-green-600"
-    >
+    <div v-if="status" class="mb-4 rounded-lg border border-emerald-500/20 bg-emerald-500/10 p-3 text-center text-sm text-emerald-400">
         {{ status }}
     </div>
 
@@ -38,11 +35,13 @@ defineProps<{
         v-bind="store.form()"
         :reset-on-success="['password']"
         v-slot="{ errors, processing }"
-        class="flex flex-col gap-6"
+        class="flex flex-col gap-5"
     >
-        <div class="grid gap-6">
-            <div class="grid gap-2">
-                <Label for="email">Email address</Label>
+        <div class="grid gap-4">
+            <div class="grid gap-1.5">
+                <Label for="email" class="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                    E-mail
+                </Label>
                 <Input
                     id="email"
                     type="email"
@@ -51,21 +50,24 @@ defineProps<{
                     autofocus
                     :tabindex="1"
                     autocomplete="email"
-                    placeholder="email@example.com"
+                    placeholder="nome@clubedovalor.com.br"
+                    class="h-11 border-white/10 bg-white/5 text-white placeholder:text-white/30 focus:border-blue-500/50 focus:bg-white/8"
                 />
                 <InputError :message="errors.email" />
             </div>
 
-            <div class="grid gap-2">
+            <div class="grid gap-1.5">
                 <div class="flex items-center justify-between">
-                    <Label for="password">Password</Label>
+                    <Label for="password" class="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                        Senha
+                    </Label>
                     <TextLink
                         v-if="canResetPassword"
                         :href="request()"
-                        class="text-sm"
+                        class="text-xs text-blue-400/70 hover:text-blue-400"
                         :tabindex="5"
                     >
-                        Forgot password?
+                        Esqueceu?
                     </TextLink>
                 </div>
                 <PasswordInput
@@ -74,27 +76,27 @@ defineProps<{
                     required
                     :tabindex="2"
                     autocomplete="current-password"
-                    placeholder="Password"
+                    placeholder="••••••••"
+                    class="h-11 border-white/10 bg-white/5 text-white placeholder:text-white/30 focus:border-blue-500/50"
                 />
                 <InputError :message="errors.password" />
             </div>
 
-            <div class="flex items-center justify-between">
-                <Label for="remember" class="flex items-center space-x-3">
-                    <Checkbox id="remember" name="remember" :tabindex="3" />
-                    <span>Remember me</span>
-                </Label>
+            <div class="flex items-center gap-2">
+                <Checkbox id="remember" name="remember" :tabindex="3" />
+                <Label for="remember" class="text-xs text-muted-foreground">Lembrar por 30 dias</Label>
             </div>
 
             <Button
                 type="submit"
-                class="mt-4 w-full"
+                class="h-11 w-full bg-blue-600 font-semibold tracking-wide text-white hover:bg-blue-500 active:bg-blue-700"
+                style="font-family: 'Syne', sans-serif; letter-spacing: 0.05em;"
                 :tabindex="4"
                 :disabled="processing"
                 data-test="login-button"
             >
-                <Spinner v-if="processing" />
-                Log in
+                <Spinner v-if="processing" class="mr-2 size-4" />
+                {{ processing ? 'Entrando…' : 'Entrar' }}
             </Button>
         </div>
     </Form>
