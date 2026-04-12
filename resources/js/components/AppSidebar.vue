@@ -133,18 +133,40 @@ const footerNavItems: NavItem[] = [];
                         <Link :href="dashboard()">
                             <div
                                 class="flex aspect-square size-8 shrink-0 items-center justify-center rounded-lg"
-                                style="background: linear-gradient(135deg, #1c55b1 0%, rgba(59,130,246,0.75) 100%); box-shadow: 0 0 16px rgba(59,130,246,0.25);"
+                                style="
+                                    background: linear-gradient(
+                                        135deg,
+                                        #1c55b1 0%,
+                                        rgba(59, 130, 246, 0.75) 100%
+                                    );
+                                    box-shadow: 0 0 16px
+                                        rgba(59, 130, 246, 0.25);
+                                "
                             >
-                                <span class="text-sm font-bold text-white" style="font-family: 'Syne', sans-serif;">E</span>
+                                <span
+                                    class="text-sm font-bold text-white"
+                                    style="font-family: 'Syne', sans-serif"
+                                    >E</span
+                                >
                             </div>
                             <div class="ml-1 grid flex-1 text-left">
                                 <span
                                     class="truncate font-extrabold text-white"
-                                    style="font-family: 'Syne', sans-serif; font-size: 0.75rem; letter-spacing: 0.12em;"
+                                    style="
+                                        font-family: 'Syne', sans-serif;
+                                        font-size: 0.75rem;
+                                        letter-spacing: 0.12em;
+                                    "
                                 >
                                     EVA
                                 </span>
-                                <span class="truncate text-xs" style="color: rgba(148,163,184,0.6); letter-spacing: 0.02em;">
+                                <span
+                                    class="truncate text-xs"
+                                    style="
+                                        color: rgba(148, 163, 184, 0.6);
+                                        letter-spacing: 0.02em;
+                                    "
+                                >
                                     Departamento Pessoal
                                 </span>
                             </div>

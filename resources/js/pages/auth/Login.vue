@@ -27,7 +27,10 @@ defineProps<{
 <template>
     <Head title="Entrar" />
 
-    <div v-if="status" class="mb-4 rounded-lg border border-emerald-500/20 bg-emerald-500/10 p-3 text-center text-sm text-emerald-400">
+    <div
+        v-if="status"
+        class="mb-4 rounded-lg border border-emerald-500/20 bg-emerald-500/10 p-3 text-center text-sm text-emerald-400"
+    >
         {{ status }}
     </div>
 
@@ -39,7 +42,10 @@ defineProps<{
     >
         <div class="grid gap-4">
             <div class="grid gap-1.5">
-                <Label for="email" class="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                <Label
+                    for="email"
+                    class="text-xs font-semibold tracking-wider text-muted-foreground uppercase"
+                >
                     E-mail
                 </Label>
                 <Input
@@ -58,7 +64,10 @@ defineProps<{
 
             <div class="grid gap-1.5">
                 <div class="flex items-center justify-between">
-                    <Label for="password" class="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                    <Label
+                        for="password"
+                        class="text-xs font-semibold tracking-wider text-muted-foreground uppercase"
+                    >
                         Senha
                     </Label>
                     <TextLink
@@ -84,13 +93,15 @@ defineProps<{
 
             <div class="flex items-center gap-2">
                 <Checkbox id="remember" name="remember" :tabindex="3" />
-                <Label for="remember" class="text-xs text-muted-foreground">Lembrar por 30 dias</Label>
+                <Label for="remember" class="text-xs text-muted-foreground"
+                    >Lembrar por 30 dias</Label
+                >
             </div>
 
             <Button
                 type="submit"
                 class="h-11 w-full bg-blue-600 font-semibold tracking-wide text-white hover:bg-blue-500 active:bg-blue-700"
-                style="font-family: 'Syne', sans-serif; letter-spacing: 0.05em;"
+                style="font-family: 'Syne', sans-serif; letter-spacing: 0.05em"
                 :tabindex="4"
                 :disabled="processing"
                 data-test="login-button"
