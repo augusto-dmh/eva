@@ -11,10 +11,12 @@ import type {
     CollaboratorStatus,
     ContractType,
 } from '@/types/collaborator';
+import type { TerminationRecord } from '@/types/termination';
 
 type Props = {
     collaborator: Collaborator;
     checklist: AdmissionChecklist | null;
+    terminationRecord: TerminationRecord | null;
 };
 
 defineProps<Props>();
@@ -438,6 +440,43 @@ function formatDate(value: string | null) {
                         {{ collaborator.chave_pix ?? '—' }}
                     </p>
                 </div>
+            </CardContent>
+        </Card>
+
+        <!-- Rescisão -->
+        <Card v-if="collaborator.status === 'ativo' && !terminationRecord">
+            <CardHeader>
+                <CardTitle>Rescisão</CardTitle>
+            </CardHeader>
+            <CardContent>
+                <p class="mb-3 text-sm text-muted-foreground">
+                    Nenhum processo de rescisão em andamento.
+                </p>
+                <Button as-child>
+                    <Link
+                        :href="`/collaborators/${collaborator.id}/termination/create`"
+                    >
+                        Iniciar Rescisão
+                    </Link>
+                </Button>
+            </CardContent>
+        </Card>
+
+        <Card v-if="terminationRecord">
+            <CardHeader>
+                <CardTitle>Rescisão em Andamento</CardTitle>
+            </CardHeader>
+            <CardContent class="flex items-center gap-4">
+                <Badge variant="secondary">{{
+                    terminationRecord.status
+                }}</Badge>
+                <Button variant="outline" as-child>
+                    <Link
+                        :href="`/termination-records/${terminationRecord.id}`"
+                    >
+                        Ver Detalhes da Rescisão
+                    </Link>
+                </Button>
             </CardContent>
         </Card>
 
