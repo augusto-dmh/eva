@@ -1,28 +1,27 @@
 <!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}"  @class(['dark' => ($appearance ?? 'system') == 'dark'])>
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" class="dark">
     <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
 
-        {{-- Inline script to detect system dark mode preference and apply it immediately --}}
+        {{-- Dark is always the default. Only switch based on explicit user preference. --}}
         <script>
             (function() {
-                const appearance = '{{ $appearance ?? "system" }}';
-
-                if (appearance === 'system') {
+                const saved = '{{ $appearance ?? "" }}';
+                if (saved === 'light') {
+                    document.documentElement.classList.remove('dark');
+                } else if (saved === 'system') {
                     const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-
-                    if (prefersDark) {
-                        document.documentElement.classList.add('dark');
-                    }
+                    if (!prefersDark) document.documentElement.classList.remove('dark');
                 }
+                // Default: dark stays on (class="dark" in HTML tag)
             })();
         </script>
 
-        {{-- Inline style to set the HTML background color based on our theme in app.css --}}
+        {{-- Immediate background to prevent flash --}}
         <style>
-            html { background-color: #f8fafc; }
-            html.dark { background-color: #020617; }
+            html { background-color: #020617; }
+            html.light, html:not(.dark) { background-color: #f8fafc; }
         </style>
 
         <link rel="icon" href="/favicon.ico" sizes="any">
@@ -30,7 +29,7 @@
         <link rel="apple-touch-icon" href="/apple-touch-icon.png">
 
         <link rel="preconnect" href="https://fonts.bunny.net">
-        <link href="https://fonts.bunny.net/css?family=syne:700,800|dm-sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&display=swap" rel="stylesheet" />
+        <link href="https://fonts.bunny.net/css?family=plus-jakarta-sans:300,400,500,600,700,800&family=raleway:700,800&display=swap" rel="stylesheet" />
 
         @vite(['resources/css/app.css', 'resources/js/app.ts', "resources/js/pages/{$page['component']}.vue"])
         <x-inertia::head>

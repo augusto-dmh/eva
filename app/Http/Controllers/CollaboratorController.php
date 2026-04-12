@@ -43,11 +43,20 @@ class CollaboratorController extends Controller
         }
 
         return Inertia::render('collaborators/Index', [
-            'collaborators' => $query->orderBy('nome_completo')->paginate(15)->withQueryString(),
+            'collaborators' => $query->orderBy('nome_completo')->paginate(20)->withQueryString(),
             'filters' => request()->only(['search', 'tipo_contrato', 'legal_entity_id', 'status']),
             'legalEntities' => LegalEntity::where('ativo', true)->get(),
             'contractTypes' => collect(ContractType::cases())->map(fn ($c) => ['value' => $c->value, 'label' => $c->label()]),
             'statuses' => collect(CollaboratorStatus::cases())->map(fn ($s) => ['value' => $s->value, 'label' => $s->label()]),
+            'stats' => [
+                'headcount_ativo' => Collaborator::where('status', CollaboratorStatus::Ativo)->count(),
+                'clt_ativo' => Collaborator::where('tipo_contrato', ContractType::Clt)->where('status', CollaboratorStatus::Ativo)->count(),
+                'pj_ativo' => Collaborator::where('tipo_contrato', ContractType::Pj)->where('status', CollaboratorStatus::Ativo)->count(),
+                'estagiario_ativo' => Collaborator::where('tipo_contrato', ContractType::Estagiario)->where('status', CollaboratorStatus::Ativo)->count(),
+                'socio_ativo' => Collaborator::where('tipo_contrato', ContractType::Socio)->where('status', CollaboratorStatus::Ativo)->count(),
+                'admissoes_mes' => Collaborator::whereMonth('data_admissao', now()->month)->whereYear('data_admissao', now()->year)->count(),
+                'total' => Collaborator::count(),
+            ],
         ]);
     }
 
