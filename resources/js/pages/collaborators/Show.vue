@@ -1,17 +1,26 @@
 <script setup lang="ts">
 import { Head, Link } from '@inertiajs/vue3';
+import HistoryTimeline from '@/components/HistoryTimeline.vue';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { show as showChecklist } from '@/routes/admission-checklists';
 import { index, edit } from '@/routes/collaborators';
+import type { AdmissionChecklist } from '@/types/checklist';
 import type {
     Collaborator,
     CollaboratorStatus,
     ContractType,
+    ProfessionalHistoryEntry,
 } from '@/types/collaborator';
+import type { TerminationRecord } from '@/types/termination';
 
 type Props = {
-    collaborator: Collaborator;
+    collaborator: Collaborator & {
+        professional_history?: ProfessionalHistoryEntry[];
+    };
+    checklist: AdmissionChecklist | null;
+    terminationRecord: TerminationRecord | null;
 };
 
 defineProps<Props>();
@@ -88,6 +97,36 @@ function formatCurrency(value: string | null) {
         style: 'currency',
         currency: 'BRL',
     }).format(num);
+}
+
+function checklistStatusVariant(status: string) {
+    switch (status) {
+        case 'pendente':
+            return 'secondary';
+        case 'em_andamento':
+            return 'default';
+        case 'completo':
+            return 'default';
+        case 'bloqueado':
+            return 'destructive';
+        default:
+            return 'secondary';
+    }
+}
+
+function checklistStatusLabel(status: string) {
+    switch (status) {
+        case 'pendente':
+            return 'Pendente';
+        case 'em_andamento':
+            return 'Em Andamento';
+        case 'completo':
+            return 'Completo';
+        case 'bloqueado':
+            return 'Bloqueado';
+        default:
+            return status;
+    }
 }
 
 function formatDate(value: string | null) {
@@ -403,6 +442,94 @@ function formatDate(value: string | null) {
                     <p class="text-sm text-muted-foreground">Chave PIX</p>
                     <p class="font-medium">
                         {{ collaborator.chave_pix ?? '—' }}
+                    </p>
+                </div>
+            </CardContent>
+        </Card>
+
+        <!-- Rescisão -->
+        <Card v-if="collaborator.status === 'ativo' && !terminationRecord">
+            <CardHeader>
+                <CardTitle>Rescisão</CardTitle>
+            </CardHeader>
+            <CardContent>
+                <p class="mb-3 text-sm text-muted-foreground">
+                    Nenhum processo de rescisão em andamento.
+                </p>
+                <Button as-child>
+                    <Link
+                        :href="`/collaborators/${collaborator.id}/termination/create`"
+                    >
+                        Iniciar Rescisão
+                    </Link>
+                </Button>
+            </CardContent>
+        </Card>
+
+        <Card v-if="terminationRecord">
+            <CardHeader>
+                <CardTitle>Rescisão em Andamento</CardTitle>
+            </CardHeader>
+            <CardContent class="flex items-center gap-4">
+                <Badge variant="secondary">{{
+                    terminationRecord.status
+                }}</Badge>
+                <Button variant="outline" as-child>
+                    <Link
+                        :href="`/termination-records/${terminationRecord.id}`"
+                    >
+                        Ver Detalhes da Rescisão
+                    </Link>
+                </Button>
+            </CardContent>
+        </Card>
+
+        <!-- Histórico Profissional -->
+        <Card>
+            <CardHeader>
+                <CardTitle>Histórico Profissional</CardTitle>
+            </CardHeader>
+            <CardContent>
+                <HistoryTimeline
+                    :entries="collaborator.professional_history ?? []"
+                />
+            </CardContent>
+        </Card>
+
+        <!-- Checklist de Admissão -->
+        <Card v-if="checklist">
+            <CardHeader>
+                <div class="flex items-center justify-between">
+                    <CardTitle>Checklist de Admissão</CardTitle>
+                    <Button variant="outline" size="sm" as-child>
+                        <Link :href="showChecklist(checklist).url">
+                            Ver Checklist Completo
+                        </Link>
+                    </Button>
+                </div>
+            </CardHeader>
+            <CardContent class="grid grid-cols-1 gap-4 md:grid-cols-3">
+                <div>
+                    <p class="text-sm text-muted-foreground">Status</p>
+                    <Badge :variant="checklistStatusVariant(checklist.status)">
+                        {{ checklistStatusLabel(checklist.status) }}
+                    </Badge>
+                </div>
+                <div>
+                    <p class="text-sm text-muted-foreground">Progresso</p>
+                    <p class="font-medium">
+                        {{
+                            (checklist.items ?? []).filter((i) => i.confirmado)
+                                .length
+                        }}
+                        /
+                        {{ (checklist.items ?? []).length }} confirmados
+                    </p>
+                </div>
+                <div>
+                    <p class="text-sm text-muted-foreground">Data Limite</p>
+                    <p class="font-medium">
+                        {{ formatDate(checklist.data_limite) }}
                     </p>
                 </div>
             </CardContent>

@@ -8,6 +8,8 @@ use App\Enums\ContractType;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Collaborator extends Model
@@ -87,5 +89,20 @@ class Collaborator extends Model
     public function legalEntity(): BelongsTo
     {
         return $this->belongsTo(LegalEntity::class);
+    }
+
+    public function admissionChecklist(): HasOne
+    {
+        return $this->hasOne(AdmissionChecklist::class);
+    }
+
+    public function terminationRecord(): HasOne
+    {
+        return $this->hasOne(TerminationRecord::class);
+    }
+
+    public function professionalHistory(): HasMany
+    {
+        return $this->hasMany(ProfessionalHistoryEntry::class)->orderByDesc('created_at');
     }
 }

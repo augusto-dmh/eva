@@ -1,6 +1,17 @@
 <script setup lang="ts">
 import { Link, usePage } from '@inertiajs/vue3';
-import { LayoutDashboard, User, Users } from 'lucide-vue-next';
+import {
+    CalendarDays,
+    FileText,
+    Gift,
+    HandCoins,
+    LayoutDashboard,
+    Receipt,
+    TrendingUp,
+    Trophy,
+    User,
+    Users,
+} from 'lucide-vue-next';
 import { computed } from 'vue';
 import NavFooter from '@/components/NavFooter.vue';
 import NavMain from '@/components/NavMain.vue';
@@ -16,11 +27,14 @@ import {
 } from '@/components/ui/sidebar';
 import { dashboard } from '@/routes';
 import { index as collaboratorsIndex } from '@/routes/collaborators';
+import { index as payrollCyclesIndex } from '@/routes/payroll-cycles';
 import { profile as selfServiceProfile } from '@/routes/self-service';
+import { index as vacationBatchesIndex } from '@/routes/vacation-batches';
 import type { NavItem } from '@/types';
 
 const page = usePage();
 const userRole = computed(() => page.props.auth.user.role);
+const isPj = computed(() => page.props.auth.isPj);
 
 const adminNavItems: NavItem[] = [
     {
@@ -33,9 +47,39 @@ const adminNavItems: NavItem[] = [
         href: collaboratorsIndex(),
         icon: Users,
     },
+    {
+        title: 'Folha de Pagamento',
+        href: payrollCyclesIndex(),
+        icon: Receipt,
+    },
+    {
+        title: 'Férias',
+        href: vacationBatchesIndex(),
+        icon: CalendarDays,
+    },
+    {
+        title: 'Dissídio',
+        href: '/dissidio-rounds',
+        icon: TrendingUp,
+    },
+    {
+        title: '13° Salário',
+        href: '/thirteenth-salary',
+        icon: Gift,
+    },
+    {
+        title: 'PLR',
+        href: '/plr',
+        icon: Trophy,
+    },
+    {
+        title: 'Contribuição Assistencial',
+        href: '/union/opposition',
+        icon: HandCoins,
+    },
 ];
 
-const collaboratorNavItems: NavItem[] = [
+const baseCollaboratorNavItems: NavItem[] = [
     {
         title: 'Dashboard',
         href: dashboard(),
@@ -48,9 +92,23 @@ const collaboratorNavItems: NavItem[] = [
     },
 ];
 
-const mainNavItems = computed<NavItem[]>(() =>
-    userRole.value === 'admin' ? adminNavItems : collaboratorNavItems,
-);
+const mainNavItems = computed<NavItem[]>(() => {
+    if (userRole.value === 'admin') {
+        return adminNavItems;
+    }
+
+    const items = [...baseCollaboratorNavItems];
+
+    if (isPj.value) {
+        items.push({
+            title: 'Notas Fiscais',
+            href: '/self-service/invoices',
+            icon: FileText,
+        });
+    }
+
+    return items;
+});
 
 const footerNavItems: NavItem[] = [];
 </script>

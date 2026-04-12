@@ -31,12 +31,14 @@ class CollaboratorSeeder extends Seeder
 
         Collaborator::factory(5)->clt()->create([
             'legal_entity_id' => $entities->random()->id,
+            'data_admissao' => fake()->dateTimeBetween('-3 years', '-18 months'),
         ]);
 
         // CLT Closer (comissioned)
         Collaborator::factory(3)->clt()->closer()->create([
             'legal_entity_id' => $entities->where('apelido', 'consultoria')->first()->id,
             'departamento' => 'Comercial',
+            'data_admissao' => fake()->dateTimeBetween('-3 years', '-18 months'),
         ]);
 
         // Advisor (socio + commission)
