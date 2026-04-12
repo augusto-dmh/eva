@@ -121,14 +121,21 @@ const footerNavItems: NavItem[] = [];
                     <SidebarMenuButton size="lg" as-child>
                         <Link :href="dashboard()">
                             <div
-                                class="flex aspect-square size-8 items-center justify-center rounded-lg"
-                                style="background: linear-gradient(135deg, rgba(28, 85, 177, 0.95), rgba(59, 130, 246, 0.8)); box-shadow: 0 0 16px rgba(59, 130, 246, 0.3);"
+                                class="flex aspect-square size-8 shrink-0 items-center justify-center rounded-lg"
+                                style="background: linear-gradient(135deg, #1c55b1 0%, rgba(59,130,246,0.75) 100%); box-shadow: 0 0 16px rgba(59,130,246,0.25);"
                             >
-                                <span class="text-xs font-bold text-white">E</span>
+                                <span class="text-sm font-bold text-white" style="font-family: 'Syne', sans-serif;">E</span>
                             </div>
-                            <div class="ml-1 grid flex-1 text-left text-sm">
-                                <span class="truncate font-bold tracking-wide text-white" style="font-size: 0.8rem; letter-spacing: 0.08em;">EVA</span>
-                                <span class="truncate text-xs" style="color: rgba(148, 163, 184, 0.8);">Departamento Pessoal</span>
+                            <div class="ml-1 grid flex-1 text-left">
+                                <span
+                                    class="truncate font-extrabold text-white"
+                                    style="font-family: 'Syne', sans-serif; font-size: 0.75rem; letter-spacing: 0.12em;"
+                                >
+                                    EVA
+                                </span>
+                                <span class="truncate text-xs" style="color: rgba(148,163,184,0.6); letter-spacing: 0.02em;">
+                                    Departamento Pessoal
+                                </span>
                             </div>
                         </Link>
                     </SidebarMenuButton>
