@@ -60,6 +60,11 @@ export interface PayrollEntry {
     valor_nota_fiscal_pj: string | null;
     status: PayrollEntryStatus;
     observacoes: string | null;
-    collaborator?: { id: number; nome_completo: string; tipo_contrato: string };
+    collaborator?: {
+        id: number;
+        nome_completo: string;
+        tipo_contrato: string;
+        tipo_comissao: string;
+    };
     legalEntity?: { id: number; nome: string; apelido: string };
 }
