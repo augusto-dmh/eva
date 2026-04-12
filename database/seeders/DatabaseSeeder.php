@@ -21,5 +21,10 @@ class DatabaseSeeder extends Seeder
             'name' => 'Colaborador Teste',
             'email' => 'colaborador@clubedovalor.com.br',
         ]);
+
+        $this->call([
+            LegalEntitySeeder::class,
+            CollaboratorSeeder::class,
+        ]);
     }
 }
