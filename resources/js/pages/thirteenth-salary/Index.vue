@@ -54,12 +54,9 @@ function statusClass(status: string): string {
 }
 
 function formatDate(value: string | null): string {
-    if (!value) {
-        return '—';
-    }
-
-    const [year, month, day] = value.split('-');
-
+    if (!value) return '—';
+    const dateOnly = value.split('T')[0];
+    const [year, month, day] = dateOnly.split('-');
     return `${day}/${month}/${year}`;
 }
 </script>

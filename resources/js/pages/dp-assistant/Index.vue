@@ -217,27 +217,27 @@ onUnmounted(() => {
 const systemCapabilities = [
     {
         icon: CalendarDays,
-        color: '#f59e0b',
-        bg: 'rgba(245,158,11,0.08)',
-        border: 'rgba(245,158,11,0.2)',
+        color: '#2563eb',
+        bg: 'rgba(37,99,235,0.08)',
+        border: 'rgba(37,99,235,0.2)',
         title: 'Elegibilidade de Férias',
         description: 'Consulte quem está elegível, períodos aquisitivos e lotes ativos.',
         example: 'Quais colaboradores CLT completam 12 meses de período aquisitivo em outubro?',
     },
     {
         icon: Clock,
-        color: '#10b981',
-        bg: 'rgba(16,185,129,0.08)',
-        border: 'rgba(16,185,129,0.2)',
+        color: '#2563eb',
+        bg: 'rgba(37,99,235,0.08)',
+        border: 'rgba(37,99,235,0.2)',
         title: 'Status da Folha',
         description: 'Ciclos de pagamento, valores brutos/líquidos e notas fiscais PJ pendentes.',
         example: 'Qual o status da folha atual e quantas NFs PJ estão pendentes?',
     },
     {
         icon: Users,
-        color: '#0096ca',
-        bg: 'rgba(0,150,202,0.08)',
-        border: 'rgba(0,150,202,0.2)',
+        color: '#2563eb',
+        bg: 'rgba(37,99,235,0.08)',
+        border: 'rgba(37,99,235,0.2)',
         title: 'Estatísticas de Colaboradores',
         description: 'Headcount por tipo de contrato, departamento, admissões e desligamentos recentes.',
         example: 'Quantos colaboradores CLT, PJ e estagiários temos atualmente?',
@@ -248,43 +248,43 @@ const systemCapabilities = [
 const generalCapabilities = [
     {
         icon: Gift,
-        color: '#10b981',
-        bg: 'rgba(16,185,129,0.08)',
-        border: 'rgba(16,185,129,0.2)',
+        color: '#2563eb',
+        bg: 'rgba(37,99,235,0.08)',
+        border: 'rgba(37,99,235,0.2)',
         title: '13° Salário',
         description: 'Cálculo pro-rata, média de comissões, parcelas e deduções INSS/IRRF.',
         example: 'Como calcular o 13° salário de um colaborador admitido em maio com salário de R$ 5.000 e média de comissões de R$ 2.400?',
     },
     {
         icon: Receipt,
-        color: '#0096ca',
-        bg: 'rgba(0,150,202,0.08)',
-        border: 'rgba(0,150,202,0.2)',
+        color: '#2563eb',
+        bg: 'rgba(37,99,235,0.08)',
+        border: 'rgba(37,99,235,0.2)',
         title: 'Comissões e DSR',
         description: 'Regras de DSR sobre comissões, cálculo para Closers e Advisors.',
         example: 'Como calcular o DSR para um Closer que recebeu R$ 8.000 em comissões brutas em um mês com 22 dias úteis?',
     },
     {
         icon: TrendingUp,
-        color: '#8b5cf6',
-        bg: 'rgba(139,92,246,0.08)',
-        border: 'rgba(139,92,246,0.2)',
+        color: '#2563eb',
+        bg: 'rgba(59,130,246,0.08)',
+        border: 'rgba(59,130,246,0.2)',
         title: 'Dissídio Coletivo',
         description: 'Retroativos, cálculo do diferencial por competência, aplicação e INSS/FGTS.',
         example: 'O dissídio de 4,81% foi aplicado em janeiro com data-base em setembro. Quantas competências de retroativo e como calcular o abono pecuniário?',
     },
     {
         icon: HandCoins,
-        color: '#f97316',
-        bg: 'rgba(249,115,22,0.08)',
-        border: 'rgba(249,115,22,0.2)',
+        color: '#2563eb',
+        bg: 'rgba(37,99,235,0.08)',
+        border: 'rgba(37,99,235,0.2)',
         title: 'Contribuição Assistencial',
         description: 'Prazos, valor (2 dias de salário), parcelamento em 4x e registro de oposição.',
         example: 'Qual é o prazo para um colaborador registrar oposição à contribuição assistencial? Como deve ser feito e o que comprova?',
     },
     {
         icon: Trophy,
-        color: '#a78bfa',
+        color: '#2563eb',
         bg: 'rgba(167,139,250,0.08)',
         border: 'rgba(167,139,250,0.2)',
         title: 'PLR — Participação nos Lucros',
@@ -536,21 +536,21 @@ const isEmpty = computed(() => messages.value.length === 0 && !isFetching.value 
         <div class="grid min-h-0 flex-1 grid-cols-1 overflow-hidden lg:grid-cols-[380px_1fr]">
 
             <!-- ── Left panel: capabilities ──────────────────────────────── -->
-            <div class="hidden min-h-0 flex-col gap-0 overflow-hidden border-r border-border/30 lg:flex" style="background:var(--sidebar);">
+            <div class="hidden min-h-0 flex-col gap-0 overflow-hidden border-r border-border bg-white lg:flex">
 
                 <!-- Panel header -->
                 <div class="border-b border-border/30 p-6 pb-4">
                     <div class="flex items-start justify-between">
                         <div>
                             <div class="mb-3 flex size-12 items-center justify-center rounded-2xl"
-                                 style="background:linear-gradient(135deg,rgba(0,150,202,0.25),rgba(0,30,98,0.4));border:1px solid rgba(0,150,202,0.3);">
-                                <Bot class="size-6" style="color:#0096ca;" />
+                                 style="background:linear-gradient(135deg,rgba(37,99,235,0.25),rgba(37,99,235,0.15));border:1px solid rgba(37,99,235,0.3);">
+                                <Bot class="size-6" style="color:#2563eb;" />
                             </div>
                             <h1 class="text-xl font-bold text-foreground">Assistente de DP</h1>
                         </div>
                         <button
                             class="flex items-center gap-1.5 rounded-lg border px-2.5 py-1.5 text-xs transition-all hover:opacity-80"
-                            style="background:rgba(0,150,202,0.06);border-color:rgba(0,150,202,0.2);color:#0096ca;"
+                            style="background:rgba(37,99,235,0.06);border-color:rgba(37,99,235,0.2);color:#2563eb;"
                             @click="startNewConversation"
                         >
                             <Plus class="size-3" />
@@ -559,7 +559,7 @@ const isEmpty = computed(() => messages.value.length === 0 && !isFetching.value 
                     </div>
 
                     <!-- Tab bar -->
-                    <div class="mt-4 flex gap-1 rounded-lg p-0.5" style="background:rgba(0,150,202,0.06);">
+                    <div class="mt-4 flex gap-1 rounded-lg p-0.5" style="background:rgba(37,99,235,0.06);">
                         <button
                             class="flex-1 rounded-md px-3 py-1.5 text-xs font-medium transition-all"
                             :class="leftPanelTab === 'capabilities' ? 'text-foreground' : 'text-muted-foreground hover:text-foreground'"
@@ -640,13 +640,13 @@ const isEmpty = computed(() => messages.value.length === 0 && !isFetching.value 
                             :key="conv.id"
                             class="group relative flex cursor-pointer items-start gap-3 rounded-xl border p-3 transition-all hover:opacity-90"
                             :style="{
-                                background: conversationId === conv.id ? 'rgba(0,150,202,0.08)' : 'transparent',
-                                borderColor: conversationId === conv.id ? 'rgba(0,150,202,0.25)' : 'rgba(255,255,255,0.06)',
+                                background: conversationId === conv.id ? 'rgba(37,99,235,0.08)' : 'transparent',
+                                borderColor: conversationId === conv.id ? 'rgba(37,99,235,0.25)' : 'var(--border)',
                             }"
                             @click="loadConversation(conv)"
                         >
-                            <div class="flex size-8 shrink-0 items-center justify-center rounded-lg" style="background:rgba(0,150,202,0.1);">
-                                <MessageSquare class="size-3.5" style="color:#0096ca;" />
+                            <div class="flex size-8 shrink-0 items-center justify-center rounded-lg" style="background:rgba(37,99,235,0.1);">
+                                <MessageSquare class="size-3.5" style="color:#2563eb;" />
                             </div>
                             <div class="min-w-0 flex-1">
                                 <div class="flex items-center gap-1.5">
@@ -658,8 +658,8 @@ const isEmpty = computed(() => messages.value.length === 0 && !isFetching.value 
                                     <input
                                         v-if="editingConversationId === conv.id"
                                         v-model="editingTitle"
-                                        class="w-full rounded border bg-transparent px-1 py-0.5 text-sm font-medium text-foreground outline-none focus:border-[#0096ca]"
-                                        style="border-color:rgba(0,150,202,0.3);"
+                                        class="w-full rounded border bg-transparent px-1 py-0.5 text-sm font-medium text-foreground outline-none focus:border-[#2563eb]"
+                                        style="border-color:rgba(37,99,235,0.3);"
                                         @keydown.enter.prevent="saveTitle(conv)"
                                         @keydown.escape.prevent="cancelEditTitle"
                                         @blur="saveTitle(conv)"
@@ -721,7 +721,7 @@ const isEmpty = computed(() => messages.value.length === 0 && !isFetching.value 
                     </span>
                     <button
                         class="flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-xs transition-all hover:opacity-80"
-                        style="background:rgba(0,150,202,0.06);border-color:rgba(0,150,202,0.2);color:#0096ca;"
+                        style="background:rgba(37,99,235,0.06);border-color:rgba(37,99,235,0.2);color:#2563eb;"
                         @click="startNewConversation"
                     >
                         <Sparkles class="size-3" />
@@ -739,8 +739,8 @@ const isEmpty = computed(() => messages.value.length === 0 && !isFetching.value 
                     <!-- Empty state -->
                     <div v-if="isEmpty" class="flex h-full flex-col items-center justify-center gap-6">
                         <div class="flex size-20 items-center justify-center rounded-3xl"
-                             style="background:linear-gradient(135deg,rgba(0,150,202,0.15),rgba(0,30,98,0.25));border:1px solid rgba(0,150,202,0.25);">
-                            <Sparkles class="size-10" style="color:#0096ca;" />
+                             style="background:linear-gradient(135deg,rgba(37,99,235,0.15),rgba(37,99,235,0.08));border:1px solid rgba(37,99,235,0.25);">
+                            <Sparkles class="size-10" style="color:#2563eb;" />
                         </div>
                         <div class="text-center">
                             <h2 class="text-xl font-bold text-foreground">Olá! Como posso ajudar?</h2>
@@ -758,7 +758,7 @@ const isEmpty = computed(() => messages.value.length === 0 && !isFetching.value 
                                         v-for="s in systemSuggestions"
                                         :key="s"
                                         class="rounded-full border px-3 py-1.5 text-xs transition-all hover:opacity-80"
-                                        style="background:rgba(0,150,202,0.06);border-color:rgba(0,150,202,0.2);color:#0096ca;"
+                                        style="background:rgba(37,99,235,0.06);border-color:rgba(37,99,235,0.2);color:#2563eb;"
                                         @click="sendMessage(s)"
                                     >
                                         {{ s }}
@@ -772,7 +772,7 @@ const isEmpty = computed(() => messages.value.length === 0 && !isFetching.value 
                                         v-for="s in generalSuggestions"
                                         :key="s"
                                         class="rounded-full border px-3 py-1.5 text-xs transition-all hover:opacity-80"
-                                        style="background:rgba(139,92,246,0.06);border-color:rgba(139,92,246,0.2);color:#8b5cf6;"
+                                        style="background:rgba(59,130,246,0.06);border-color:rgba(59,130,246,0.2);color:#3b82f6;"
                                         @click="sendMessage(s)"
                                     >
                                         {{ s }}
@@ -822,9 +822,9 @@ const isEmpty = computed(() => messages.value.length === 0 && !isFetching.value 
                             <div
                                 v-if="msg.role === 'assistant'"
                                 class="flex size-8 shrink-0 items-center justify-center self-end rounded-xl"
-                                style="background:linear-gradient(135deg,rgba(0,150,202,0.2),rgba(0,30,98,0.3));border:1px solid rgba(0,150,202,0.25);"
+                                style="background:linear-gradient(135deg,rgba(37,99,235,0.2),rgba(37,99,235,0.1));border:1px solid rgba(37,99,235,0.25);"
                             >
-                                <Bot class="size-4" style="color:#0096ca;" />
+                                <Bot class="size-4" style="color:#2563eb;" />
                             </div>
 
                             <!-- Bubble -->
@@ -836,7 +836,7 @@ const isEmpty = computed(() => messages.value.length === 0 && !isFetching.value 
                                             ? 'rounded-br-sm text-white'
                                             : 'rounded-bl-sm glass-card',
                                     ]"
-                                    :style="msg.role === 'user' ? 'background:linear-gradient(135deg,#0096ca,#004d80);' : ''"
+                                    :style="msg.role === 'user' ? 'background:linear-gradient(135deg,#2563eb,#1d4ed8);' : ''"
                                     v-html="msg.role === 'assistant' ? renderMarkdown(msg.text) : msg.text"
                                 />
                                 <div class="flex items-center gap-2 px-1">
@@ -868,13 +868,13 @@ const isEmpty = computed(() => messages.value.length === 0 && !isFetching.value 
                         <!-- Streaming bubble: raw text + pulsing cursor -->
                         <div v-if="isStreaming && streamData" class="flex justify-start gap-3">
                             <div class="flex size-8 shrink-0 items-center justify-center self-end rounded-xl"
-                                 style="background:linear-gradient(135deg,rgba(0,150,202,0.2),rgba(0,30,98,0.3));border:1px solid rgba(0,150,202,0.25);">
-                                <Bot class="size-4" style="color:#0096ca;" />
+                                 style="background:linear-gradient(135deg,rgba(37,99,235,0.2),rgba(37,99,235,0.1));border:1px solid rgba(37,99,235,0.25);">
+                                <Bot class="size-4" style="color:#2563eb;" />
                             </div>
                             <div class="flex max-w-[80%] flex-col gap-1">
                                 <p class="rounded-2xl rounded-bl-sm glass-card px-4 py-3 text-sm leading-relaxed whitespace-pre-wrap">
                                     <span>{{ streamData }}</span>
-                                    <span class="ml-0.5 inline-block h-3.5 w-1.5 animate-pulse rounded-sm" style="background:#0096ca;" />
+                                    <span class="ml-0.5 inline-block h-3.5 w-1.5 animate-pulse rounded-sm" style="background:#2563eb;" />
                                 </p>
                             </div>
                         </div>
@@ -882,8 +882,8 @@ const isEmpty = computed(() => messages.value.length === 0 && !isFetching.value 
                         <!-- Typing indicator (before streaming starts) -->
                         <div v-else-if="isFetching || loading" class="flex justify-start gap-3">
                             <div class="flex size-8 shrink-0 items-center justify-center self-end rounded-xl"
-                                 style="background:linear-gradient(135deg,rgba(0,150,202,0.2),rgba(0,30,98,0.3));border:1px solid rgba(0,150,202,0.25);">
-                                <Bot class="size-4" style="color:#0096ca;" />
+                                 style="background:linear-gradient(135deg,rgba(37,99,235,0.2),rgba(37,99,235,0.1));border:1px solid rgba(37,99,235,0.25);">
+                                <Bot class="size-4" style="color:#2563eb;" />
                             </div>
                             <div class="glass-card flex items-center gap-1.5 rounded-2xl rounded-bl-sm px-4 py-3">
                                 <span
@@ -891,7 +891,7 @@ const isEmpty = computed(() => messages.value.length === 0 && !isFetching.value 
                                     :key="n"
                                     class="size-1.5 rounded-full"
                                     :style="{
-                                        background: '#0096ca',
+                                        background: '#2563eb',
                                         animation: 'typing-dot 1.2s ease-in-out infinite',
                                         animationDelay: `${(n - 1) * 0.2}s`,
                                     }"
@@ -908,8 +908,8 @@ const isEmpty = computed(() => messages.value.length === 0 && !isFetching.value 
 
                 <!-- Input bar -->
                 <div class="shrink-0 px-6 pb-6">
-                    <div class="mx-auto flex max-w-3xl items-center rounded-full border px-4 py-2.5 transition-colors focus-within:border-[rgba(0,150,202,0.4)]"
-                         style="background:var(--card);border-color:rgba(0,150,202,0.15);">
+                    <div class="mx-auto flex max-w-3xl items-center rounded-full border px-4 py-2.5 transition-colors focus-within:border-[rgba(37,99,235,0.4)]"
+                         style="background:var(--card);border-color:rgba(37,99,235,0.15);">
                         <textarea
                             v-model="inputText"
                             rows="1"
@@ -923,10 +923,10 @@ const isEmpty = computed(() => messages.value.length === 0 && !isFetching.value 
                         <button
                             :disabled="!inputText.trim() || isFetching || isStreaming || loading"
                             class="ml-3 flex size-8 shrink-0 items-center justify-center rounded-full transition-all disabled:opacity-30"
-                            :style="inputText.trim() && !isFetching && !isStreaming && !loading ? 'background:linear-gradient(135deg,#0096ca,#004d80);' : 'background:rgba(0,150,202,0.15);'"
+                            :style="inputText.trim() && !isFetching && !isStreaming && !loading ? 'background:linear-gradient(135deg,#2563eb,#1d4ed8);' : 'background:rgba(37,99,235,0.15);'"
                             @click="sendMessage()"
                         >
-                            <Send class="size-4" :style="inputText.trim() && !isFetching && !isStreaming && !loading ? 'color:#fff;' : 'color:#0096ca;'" />
+                            <Send class="size-4" :style="inputText.trim() && !isFetching && !isStreaming && !loading ? 'color:#fff;' : 'color:#2563eb;'" />
                         </button>
                     </div>
                 </div>
@@ -981,7 +981,7 @@ const isEmpty = computed(() => messages.value.length === 0 && !isFetching.value 
     strong { color: var(--foreground); }
 
     code {
-        background: rgba(0,150,202,0.12);
+        background: rgba(37,99,235,0.12);
         padding: 0.1em 0.35em;
         border-radius: 4px;
         font-size: 0.85em;
@@ -1006,17 +1006,17 @@ const isEmpty = computed(() => messages.value.length === 0 && !isFetching.value 
         font-size: 0.85em;
     }
     th, td {
-        border: 1px solid rgba(0,150,202,0.15);
+        border: 1px solid rgba(37,99,235,0.15);
         padding: 0.35em 0.6em;
         text-align: left;
     }
     th {
-        background: rgba(0,150,202,0.08);
+        background: rgba(37,99,235,0.08);
         font-weight: 600;
     }
 
     blockquote {
-        border-left: 3px solid rgba(0,150,202,0.3);
+        border-left: 3px solid rgba(37,99,235,0.3);
         padding-left: 0.75em;
         margin: 0.5em 0;
         color: var(--muted-foreground);

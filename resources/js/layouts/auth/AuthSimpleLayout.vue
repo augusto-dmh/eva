@@ -6,85 +6,28 @@ defineProps<{
 </script>
 
 <template>
-    <div
-        class="relative flex min-h-svh overflow-hidden"
-        style="background: #020617"
-    >
-        <!-- Grid background -->
+    <div class="relative flex min-h-svh overflow-hidden bg-gray-50">
+        <!-- Left: branding panel -->
         <div
-            class="pointer-events-none absolute inset-0"
-            style="
-                background-image:
-                    linear-gradient(
-                        rgba(59, 130, 246, 0.07) 1px,
-                        transparent 1px
-                    ),
-                    linear-gradient(
-                        90deg,
-                        rgba(59, 130, 246, 0.07) 1px,
-                        transparent 1px
-                    );
-                background-size: 60px 60px;
-                mask-image: radial-gradient(
-                    ellipse 80% 80% at 50% 0%,
-                    rgba(0, 0, 0, 0.8) 0%,
-                    transparent 100%
-                );
-            "
-        />
-
-        <!-- Glow top -->
-        <div
-            class="pointer-events-none absolute"
-            style="
-                width: 800px;
-                height: 500px;
-                border-radius: 50%;
-                background: radial-gradient(
-                    circle,
-                    rgba(59, 130, 246, 0.15) 0%,
-                    transparent 65%
-                );
-                filter: blur(60px);
-                top: -250px;
-                left: 50%;
-                transform: translateX(-50%);
-            "
-        />
-
-        <!-- Left: large wordmark -->
-        <div
-            class="relative hidden flex-1 flex-col justify-between p-12 lg:flex"
+            class="relative hidden flex-1 flex-col justify-between p-12 text-white lg:flex"
+            style="background:#1e3a5f;"
         >
             <div>
                 <div
-                    class="font-display text-[7rem] leading-none font-extrabold tracking-tight"
-                    style="
-                        font-family: 'Syne', sans-serif;
-                        background: linear-gradient(
-                            135deg,
-                            rgba(255, 255, 255, 0.9) 0%,
-                            rgba(59, 130, 246, 0.6) 100%
-                        );
-                        -webkit-background-clip: text;
-                        -webkit-text-fill-color: transparent;
-                        background-clip: text;
-                    "
+                    class="text-[7rem] leading-none font-extrabold tracking-tight"
+                    style="font-family:'Syne',sans-serif;color:rgba(255,255,255,0.95);"
                 >
                     EVA
                 </div>
                 <p
-                    class="mt-4 text-base font-medium tracking-widest text-muted-foreground"
-                    style="letter-spacing: 0.2em"
+                    class="mt-4 text-base font-medium tracking-widest"
+                    style="letter-spacing:0.2em;color:rgba(255,255,255,0.6);"
                 >
                     DEPARTAMENTO PESSOAL
                 </p>
             </div>
             <div>
-                <p
-                    class="text-sm text-muted-foreground"
-                    style="max-width: 320px"
-                >
+                <p class="text-sm" style="max-width:320px;color:rgba(255,255,255,0.5);">
                     Portal de gestão de pessoas e obrigações trabalhistas do
                     Clube do Valor.
                 </p>
@@ -93,28 +36,13 @@ defineProps<{
 
         <!-- Right: login card -->
         <div
-            class="relative flex w-full flex-col items-center justify-center p-8 lg:w-[440px] lg:border-l"
-            style="
-                border-color: rgba(59, 130, 246, 0.1);
-                background: rgba(2, 6, 23, 0.6);
-                backdrop-filter: blur(24px);
-            "
+            class="relative flex w-full flex-col items-center justify-center border-l border-border bg-white p-8 lg:w-[440px]"
         >
             <!-- Mobile wordmark -->
             <div class="mb-8 text-center lg:hidden">
                 <div
                     class="text-4xl font-extrabold"
-                    style="
-                        font-family: 'Syne', sans-serif;
-                        background: linear-gradient(
-                            135deg,
-                            #ffffff 0%,
-                            #3b82f6 100%
-                        );
-                        -webkit-background-clip: text;
-                        -webkit-text-fill-color: transparent;
-                        background-clip: text;
-                    "
+                    style="font-family:'Syne',sans-serif;color:#1e3a5f;"
                 >
                     EVA
                 </div>
@@ -127,8 +55,8 @@ defineProps<{
                 <div v-if="title || description" class="mb-8">
                     <h1
                         v-if="title"
-                        class="text-2xl font-bold text-white"
-                        style="font-family: 'Syne', sans-serif"
+                        class="text-2xl font-bold text-foreground"
+                        style="font-family:'Syne',sans-serif"
                     >
                         {{ title }}
                     </h1>

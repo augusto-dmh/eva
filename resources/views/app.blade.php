@@ -1,28 +1,10 @@
 <!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" class="dark">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
     <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
 
-        {{-- Dark is always the default. Only switch based on explicit user preference. --}}
-        <script>
-            (function() {
-                const saved = '{{ $appearance ?? "" }}';
-                if (saved === 'light') {
-                    document.documentElement.classList.remove('dark');
-                } else if (saved === 'system') {
-                    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-                    if (!prefersDark) document.documentElement.classList.remove('dark');
-                }
-                // Default: dark stays on (class="dark" in HTML tag)
-            })();
-        </script>
-
-        {{-- Immediate background to prevent flash --}}
-        <style>
-            html { background-color: #020617; }
-            html.light, html:not(.dark) { background-color: #f8fafc; }
-        </style>
+        <style>html { background-color: #f8fafc; }</style>
 
         <link rel="icon" href="/favicon.ico" sizes="any">
         <link rel="icon" href="/favicon.svg" type="image/svg+xml">

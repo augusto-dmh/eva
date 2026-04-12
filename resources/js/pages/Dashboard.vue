@@ -84,10 +84,10 @@ const formatCurrency = (value: number) =>
 const payrollStatusColor = computed(() => {
     const map: Record<string, string> = {
         aberto: '#0096ca',
-        aguardando_nf_pj: '#f59e0b',
-        aguardando_comissoes: '#f97316',
+        aguardando_nf_pj: '#3b82f6',
+        aguardando_comissoes: '#60a5fa',
         em_revisao: '#8b5cf6',
-        conferido_contabilidade: '#10b981',
+        conferido_contabilidade: '#2563eb',
         fechado: '#475569',
     };
 
@@ -114,7 +114,7 @@ const kpis = computed(() => [
             ? `Próximo: ${props.nextVacationBatch}`
             : 'Nenhum pendente',
         icon: CalendarDays,
-        color: '#f59e0b',
+        color: '#3b82f6',
         trend: props.activeVacationBatches > 0 ? 'Em andamento' : 'Tudo em dia',
         href: '/vacation-batches',
     },
@@ -127,7 +127,7 @@ const kpis = computed(() => [
             : '—',
         sub: props.dissidioSummary?.label ?? 'Sem dados',
         icon: TrendingUp,
-        color: '#10b981',
+        color: '#2563eb',
         trend: props.dissidioSummary?.label ?? '—',
         href: '/dissidio-rounds',
     },
@@ -177,7 +177,7 @@ const kpis = computed(() => [
                         }}</span>
                         <template v-if="pendingPjInvoices > 0">
                             ·
-                            <span class="font-medium" style="color: #f59e0b"
+                            <span class="font-medium" style="color: #2563eb"
                                 >{{ pendingPjInvoices }} NF PJ pendente{{
                                     pendingPjInvoices > 1 ? 's' : ''
                                 }}</span
@@ -193,9 +193,9 @@ const kpis = computed(() => [
                     :href="`/payroll-cycles/${payrollSummary.id}`"
                     class="flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-medium transition-opacity hover:opacity-80"
                     style="
-                        background: rgba(245, 158, 11, 0.08);
-                        border-color: rgba(245, 158, 11, 0.25);
-                        color: #f59e0b;
+                        background: rgba(37, 99, 235, 0.08);
+                        border-color: rgba(37, 99, 235, 0.25);
+                        color: #2563eb;
                     "
                 >
                     <FileWarning class="size-3" />
@@ -278,7 +278,7 @@ const kpis = computed(() => [
             class="fade-up fade-up-6 glass-card flex items-center justify-between p-4"
         >
             <div class="flex items-center gap-3">
-                <Gift class="size-5" style="color: #f59e0b" />
+                <Gift class="size-5" style="color: #2563eb" />
                 <div>
                     <p class="text-sm font-medium text-foreground">
                         13° Salário {{ thirteenthSummary.ano }}
@@ -291,7 +291,7 @@ const kpis = computed(() => [
             <Link
                 href="/thirteenth-salary"
                 class="rounded-lg px-3 py-1.5 text-xs font-medium transition-opacity hover:opacity-80"
-                style="background: rgba(245, 158, 11, 0.12); color: #f59e0b"
+                style="background: rgba(37, 99, 235, 0.12); color: #2563eb"
             >
                 Ver detalhes
             </Link>
@@ -325,7 +325,7 @@ const kpis = computed(() => [
                                     item.tipo === 'success'
                                         ? 'rgba(16,185,129,0.1)'
                                         : item.tipo === 'warn'
-                                          ? 'rgba(245,158,11,0.1)'
+                                          ? 'rgba(37,99,235,0.1)'
                                           : 'rgba(0,150,202,0.1)',
                             }"
                         >
@@ -334,9 +334,9 @@ const kpis = computed(() => [
                                 :style="{
                                     background:
                                         item.tipo === 'success'
-                                            ? '#10b981'
+                                            ? '#2563eb'
                                             : item.tipo === 'warn'
-                                              ? '#f59e0b'
+                                              ? '#3b82f6'
                                               : '#0096ca',
                                 }"
                             />

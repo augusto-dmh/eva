@@ -103,7 +103,7 @@ function statusClass(status: VacationBatchStatus): string {
         case 'calculado':
             return 'bg-blue-100 text-blue-800';
         case 'em_revisao':
-            return 'bg-yellow-100 text-yellow-800';
+            return 'bg-blue-100 text-blue-800';
         case 'confirmado':
             return 'bg-teal-100 text-teal-800';
         case 'concluido':
