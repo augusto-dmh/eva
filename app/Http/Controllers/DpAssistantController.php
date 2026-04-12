@@ -101,12 +101,13 @@ class DpAssistantController extends Controller
         );
 
         return response()->stream(function () use ($streamable) {
+            while (ob_get_level()) {
+                ob_end_flush();
+            }
+
             foreach ($streamable as $event) {
                 if ($event instanceof TextDelta) {
                     echo 'data: '.json_encode(['type' => 'chunk', 'delta' => $event->delta])."\n\n";
-                    if (ob_get_level()) {
-                        ob_flush();
-                    }
                     flush();
                 }
             }
@@ -115,9 +116,6 @@ class DpAssistantController extends Controller
                 'type' => 'done',
                 'conversation_id' => $streamable->conversationId,
             ])."\n\n";
-            if (ob_get_level()) {
-                ob_flush();
-            }
             flush();
         }, 200, [
             'Content-Type' => 'text/event-stream',

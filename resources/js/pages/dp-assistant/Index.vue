@@ -317,14 +317,7 @@ async function sendMessage(text?: string) {
         timestamp: new Date(),
     });
 
-    // Push an empty assistant message that will be filled by the stream
-    const assistantMsg: Message = {
-        id: ++messageIdCounter,
-        role: 'assistant',
-        text: '',
-        timestamp: new Date(),
-    };
-    messages.value.push(assistantMsg);
+    let assistantMsg: Message | null = null;
 
     await scrollToBottom();
     loading.value = true;
@@ -361,6 +354,16 @@ async function sendMessage(text?: string) {
                 try {
                     const event = JSON.parse(json);
                     if (event.type === 'chunk' && event.delta) {
+                        if (!assistantMsg) {
+                            loading.value = false;
+                            assistantMsg = {
+                                id: ++messageIdCounter,
+                                role: 'assistant',
+                                text: '',
+                                timestamp: new Date(),
+                            };
+                            messages.value.push(assistantMsg);
+                        }
                         assistantMsg.text += event.delta;
                         await scrollToBottom();
                     } else if (event.type === 'done') {
@@ -373,13 +376,16 @@ async function sendMessage(text?: string) {
             }
         }
 
-        if (!assistantMsg.text) {
-            assistantMsg.text = 'Não foi possível obter uma resposta.';
+        if (!assistantMsg) {
+            messages.value.push({
+                id: ++messageIdCounter,
+                role: 'assistant',
+                text: 'Não foi possível obter uma resposta.',
+                timestamp: new Date(),
+            });
         }
     } catch {
         error.value = 'Erro ao conectar ao assistente. Verifique se AI_DEFAULT_PROVIDER e a chave da API estão configurados corretamente no .env.';
-        // Remove the empty assistant message on error
-        messages.value = messages.value.filter(m => m.id !== assistantMsg.id);
     } finally {
         loading.value = false;
         await scrollToBottom();
@@ -895,12 +901,14 @@ const isEmpty = computed(() => messages.value.length === 0 && !loading.value);
     </div>
 </template>
 
-<style scoped>
+<style>
 @keyframes typing-dot {
     0%, 60%, 100% { opacity: 0.3; transform: translateY(0); }
     30% { opacity: 1; transform: translateY(-3px); }
 }
+</style>
 
+<style scoped>
 /* Markdown rendered inside assistant chat bubbles */
 :deep(.glass-card) {
     h1, h2, h3, h4 {
