@@ -3,9 +3,11 @@ import { Link, usePage } from '@inertiajs/vue3';
 import {
     CalendarDays,
     FileText,
+    Gift,
     LayoutDashboard,
     Receipt,
     TrendingUp,
+    Trophy,
     User,
     Users,
 } from 'lucide-vue-next';
@@ -58,6 +60,16 @@ const adminNavItems: NavItem[] = [
         title: 'Dissídio',
         href: '/dissidio-rounds',
         icon: TrendingUp,
+    },
+    {
+        title: '13° Salário',
+        href: '/thirteenth-salary',
+        icon: Gift,
+    },
+    {
+        title: 'PLR',
+        href: '/plr',
+        icon: Trophy,
     },
 ];
 
