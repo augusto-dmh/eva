@@ -885,6 +885,10 @@ const isEmpty = computed(() => messages.value.length === 0 && !loading.value);
         padding-left: 1.3em;
         margin: 0.4em 0;
     }
+    ul { list-style-type: disc; }
+    ol { list-style-type: decimal; }
+    ul ul { list-style-type: circle; }
+    ol ol { list-style-type: lower-alpha; }
     li { margin: 0.15em 0; }
 
     strong { color: var(--foreground); }
