@@ -75,6 +75,7 @@ class CollaboratorController extends Controller
         return Inertia::render('collaborators/Show', [
             'collaborator' => $collaborator->load('legalEntity'),
             'checklist' => $collaborator->admissionChecklist()->with('items')->first(),
+            'terminationRecord' => $collaborator->terminationRecord,
         ]);
     }
 
