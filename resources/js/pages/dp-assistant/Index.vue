@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { Head, Link } from '@inertiajs/vue3';
-import { ref, nextTick, computed } from 'vue';
+import { ref, nextTick, computed, onMounted } from 'vue';
 import { marked } from 'marked';
 import {
     ArrowLeft,
@@ -13,9 +13,13 @@ import {
     Download,
     Gift,
     HandCoins,
+    MessageSquare,
+    Plus,
     Receipt,
     Send,
     Sparkles,
+    Star,
+    Trash2,
     TrendingUp,
     Trophy,
     Users,
@@ -41,6 +45,14 @@ interface Message {
     copied?: boolean;
 }
 
+interface Conversation {
+    id: string;
+    title: string;
+    is_favorite: boolean;
+    created_at: string;
+    updated_at: string;
+}
+
 // ── State ────────────────────────────────────────────────────────────────────
 const messages = ref<Message[]>([]);
 const inputText = ref('');
@@ -50,11 +62,110 @@ const chatContainer = ref<HTMLDivElement | null>(null);
 const conversationId = ref<string | null>(null);
 let messageIdCounter = 0;
 
+const conversations = ref<Conversation[]>([]);
+const loadingConversations = ref(false);
+const leftPanelTab = ref<'capabilities' | 'conversations'>('capabilities');
+
 function startNewConversation() {
     conversationId.value = null;
     messages.value = [];
     error.value = '';
 }
+
+// ── Conversation management ─────────────────────────────────────────────────
+function getCsrfToken(): string {
+    const match = document.cookie.match(/XSRF-TOKEN=([^;]+)/);
+    return match ? decodeURIComponent(match[1]) : '';
+}
+
+async function fetchConversations() {
+    loadingConversations.value = true;
+    try {
+        const res = await fetch('/dp-assistant/conversations', {
+            headers: { 'X-XSRF-TOKEN': getCsrfToken() },
+        });
+        if (res.ok) {
+            const data = await res.json();
+            conversations.value = data.conversations;
+        }
+    } finally {
+        loadingConversations.value = false;
+    }
+}
+
+async function loadConversation(conv: Conversation) {
+    loading.value = true;
+    error.value = '';
+    try {
+        const res = await fetch(`/dp-assistant/conversations/${conv.id}`, {
+            headers: { 'X-XSRF-TOKEN': getCsrfToken() },
+        });
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const data = await res.json();
+        conversationId.value = conv.id;
+        messageIdCounter = 0;
+        messages.value = data.messages.map((m: { role: string; content: string; created_at: string }) => ({
+            id: ++messageIdCounter,
+            role: m.role as 'user' | 'assistant',
+            text: m.content,
+            timestamp: new Date(m.created_at),
+        }));
+        await scrollToBottom();
+    } catch {
+        error.value = 'Erro ao carregar conversa.';
+    } finally {
+        loading.value = false;
+    }
+}
+
+async function deleteConversation(conv: Conversation) {
+    try {
+        await fetch(`/dp-assistant/conversations/${conv.id}`, {
+            method: 'DELETE',
+            headers: { 'X-XSRF-TOKEN': getCsrfToken() },
+        });
+        conversations.value = conversations.value.filter(c => c.id !== conv.id);
+        if (conversationId.value === conv.id) {
+            startNewConversation();
+        }
+    } catch { /* silent */ }
+}
+
+async function toggleFavorite(conv: Conversation) {
+    try {
+        const res = await fetch(`/dp-assistant/conversations/${conv.id}/favorite`, {
+            method: 'PATCH',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-XSRF-TOKEN': getCsrfToken(),
+            },
+        });
+        if (res.ok) {
+            const data = await res.json();
+            conv.is_favorite = data.is_favorite;
+            // Re-sort: favorites first, then by date
+            conversations.value.sort((a, b) => {
+                if (a.is_favorite !== b.is_favorite) return b.is_favorite ? 1 : -1;
+                return new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime();
+            });
+        }
+    } catch { /* silent */ }
+}
+
+function formatConversationDate(dateStr: string): string {
+    const date = new Date(dateStr);
+    const now = new Date();
+    const diff = now.getTime() - date.getTime();
+    const days = Math.floor(diff / 86400000);
+    if (days === 0) return 'Hoje';
+    if (days === 1) return 'Ontem';
+    if (days < 7) return `${days} dias atrás`;
+    return date.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' });
+}
+
+onMounted(() => {
+    fetchConversations();
+});
 
 // ── Capabilities: System-specific (tool-backed) ─────────────────────────────
 const systemCapabilities = [
@@ -150,11 +261,6 @@ const generalSuggestions = [
 ];
 
 // ── Chat logic ────────────────────────────────────────────────────────────────
-function getCsrfToken(): string {
-    const match = document.cookie.match(/XSRF-TOKEN=([^;]+)/);
-    return match ? decodeURIComponent(match[1]) : '';
-}
-
 async function sendMessage(text?: string) {
     const question = (text ?? inputText.value).trim();
     if (!question || loading.value) return;
@@ -187,6 +293,7 @@ async function sendMessage(text?: string) {
         }
 
         const data = await response.json();
+        const isNew = !conversationId.value && data.conversation_id;
         conversationId.value = data.conversation_id ?? conversationId.value;
         messages.value.push({
             id: ++messageIdCounter,
@@ -194,6 +301,7 @@ async function sendMessage(text?: string) {
             text: data.answer ?? 'Não foi possível obter uma resposta.',
             timestamp: new Date(),
         });
+        if (isNew) fetchConversations();
     } catch {
         error.value = 'Erro ao conectar ao assistente. Verifique se AI_DEFAULT_PROVIDER e a chave da API estão configurados corretamente no .env.';
     } finally {
@@ -327,23 +435,51 @@ const isEmpty = computed(() => messages.value.length === 0 && !loading.value);
             <div class="hidden min-h-0 flex-col gap-0 overflow-hidden border-r border-border/30 lg:flex" style="background:var(--sidebar);">
 
                 <!-- Panel header -->
-                <div class="border-b border-border/30 p-6">
-                    <div class="mb-3 flex size-12 items-center justify-center rounded-2xl"
-                         style="background:linear-gradient(135deg,rgba(0,150,202,0.25),rgba(0,30,98,0.4));border:1px solid rgba(0,150,202,0.3);">
-                        <Bot class="size-6" style="color:#0096ca;" />
+                <div class="border-b border-border/30 p-6 pb-4">
+                    <div class="flex items-start justify-between">
+                        <div>
+                            <div class="mb-3 flex size-12 items-center justify-center rounded-2xl"
+                                 style="background:linear-gradient(135deg,rgba(0,150,202,0.25),rgba(0,30,98,0.4));border:1px solid rgba(0,150,202,0.3);">
+                                <Bot class="size-6" style="color:#0096ca;" />
+                            </div>
+                            <h1 class="text-xl font-bold text-foreground">Assistente de DP</h1>
+                        </div>
+                        <button
+                            class="flex items-center gap-1.5 rounded-lg border px-2.5 py-1.5 text-xs transition-all hover:opacity-80"
+                            style="background:rgba(0,150,202,0.06);border-color:rgba(0,150,202,0.2);color:#0096ca;"
+                            @click="startNewConversation"
+                        >
+                            <Plus class="size-3" />
+                            Nova
+                        </button>
                     </div>
-                    <h1 class="text-xl font-bold text-foreground">Assistente de DP</h1>
-                    <p class="mt-1 text-sm text-muted-foreground">
-                        IA com acesso ao sistema Eva e conhecimento das regras trabalhistas brasileiras.
-                    </p>
-                    <div class="mt-3 flex items-center gap-1.5 text-xs" style="color:#0096ca;">
-                        <Zap class="size-3" />
-                        Alimentado por IA via Laravel AI SDK
+
+                    <!-- Tab bar -->
+                    <div class="mt-4 flex gap-1 rounded-lg p-0.5" style="background:rgba(0,150,202,0.06);">
+                        <button
+                            class="flex-1 rounded-md px-3 py-1.5 text-xs font-medium transition-all"
+                            :class="leftPanelTab === 'capabilities' ? 'text-foreground' : 'text-muted-foreground hover:text-foreground'"
+                            :style="leftPanelTab === 'capabilities' ? 'background:var(--card);box-shadow:0 1px 3px rgba(0,0,0,0.2);' : ''"
+                            @click="leftPanelTab = 'capabilities'"
+                        >
+                            <Zap class="mr-1 inline size-3" />
+                            Capacidades
+                        </button>
+                        <button
+                            class="flex-1 rounded-md px-3 py-1.5 text-xs font-medium transition-all"
+                            :class="leftPanelTab === 'conversations' ? 'text-foreground' : 'text-muted-foreground hover:text-foreground'"
+                            :style="leftPanelTab === 'conversations' ? 'background:var(--card);box-shadow:0 1px 3px rgba(0,0,0,0.2);' : ''"
+                            @click="leftPanelTab = 'conversations'; fetchConversations()"
+                        >
+                            <MessageSquare class="mr-1 inline size-3" />
+                            Conversas
+                            <span v-if="conversations.length" class="ml-1 text-muted-foreground">({{ conversations.length }})</span>
+                        </button>
                     </div>
                 </div>
 
-                <!-- Capability cards -->
-                <div class="flex-1 overflow-y-auto p-4">
+                <!-- Tab: Capabilities -->
+                <div v-if="leftPanelTab === 'capabilities'" class="flex-1 overflow-y-auto p-4">
                     <p class="mb-3 text-xs font-semibold uppercase tracking-widest text-muted-foreground">
                         Consultas ao Sistema Eva
                     </p>
@@ -382,6 +518,64 @@ const isEmpty = computed(() => messages.value.length === 0 && !loading.value);
                             </div>
                             <p class="mt-1 text-xs text-muted-foreground">{{ cap.description }}</p>
                         </button>
+                    </div>
+                </div>
+
+                <!-- Tab: Conversations -->
+                <div v-else class="flex-1 overflow-y-auto p-4">
+                    <div v-if="loadingConversations" class="flex items-center justify-center py-8">
+                        <span class="text-xs text-muted-foreground">Carregando...</span>
+                    </div>
+                    <div v-else-if="conversations.length === 0" class="flex flex-col items-center justify-center gap-3 py-12">
+                        <MessageSquare class="size-8 text-muted-foreground/40" />
+                        <p class="text-center text-xs text-muted-foreground">Nenhuma conversa salva ainda. Faça uma pergunta para começar.</p>
+                    </div>
+                    <div v-else class="flex flex-col gap-1.5">
+                        <div
+                            v-for="conv in conversations"
+                            :key="conv.id"
+                            class="group relative flex cursor-pointer items-start gap-3 rounded-xl border p-3 transition-all hover:opacity-90"
+                            :style="{
+                                background: conversationId === conv.id ? 'rgba(0,150,202,0.08)' : 'transparent',
+                                borderColor: conversationId === conv.id ? 'rgba(0,150,202,0.25)' : 'rgba(255,255,255,0.06)',
+                            }"
+                            @click="loadConversation(conv)"
+                        >
+                            <div class="flex size-8 shrink-0 items-center justify-center rounded-lg" style="background:rgba(0,150,202,0.1);">
+                                <MessageSquare class="size-3.5" style="color:#0096ca;" />
+                            </div>
+                            <div class="min-w-0 flex-1">
+                                <div class="flex items-center gap-1.5">
+                                    <Star
+                                        v-if="conv.is_favorite"
+                                        class="size-3 shrink-0"
+                                        style="color:#f59e0b;fill:#f59e0b;"
+                                    />
+                                    <p class="truncate text-sm font-medium text-foreground">{{ conv.title || 'Conversa sem título' }}</p>
+                                </div>
+                                <p class="mt-0.5 text-xs text-muted-foreground">{{ formatConversationDate(conv.updated_at) }}</p>
+                            </div>
+                            <!-- Actions on hover -->
+                            <div class="flex shrink-0 items-center gap-1 opacity-0 transition-opacity group-hover:opacity-100">
+                                <button
+                                    class="rounded-md p-1 transition-colors hover:bg-yellow-500/10"
+                                    :title="conv.is_favorite ? 'Remover favorito' : 'Favoritar'"
+                                    @click.stop="toggleFavorite(conv)"
+                                >
+                                    <Star
+                                        class="size-3.5"
+                                        :style="conv.is_favorite ? 'color:#f59e0b;fill:#f59e0b;' : 'color:var(--muted-foreground);'"
+                                    />
+                                </button>
+                                <button
+                                    class="rounded-md p-1 transition-colors hover:bg-red-500/10"
+                                    title="Excluir conversa"
+                                    @click.stop="deleteConversation(conv)"
+                                >
+                                    <Trash2 class="size-3.5 text-muted-foreground" />
+                                </button>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
