@@ -13,6 +13,7 @@ use Laravel\Ai\Contracts\Agent;
 use Laravel\Ai\Contracts\Conversational;
 use Laravel\Ai\Contracts\HasTools;
 use Laravel\Ai\Promptable;
+use Laravel\Ai\Responses\StreamableAgentResponse;
 
 class DpAssistantAgent implements Agent, Conversational, HasTools
 {
@@ -78,6 +79,21 @@ PROMPT;
             'answer' => $response->text,
             'conversation_id' => $response->conversationId,
         ];
+    }
+
+    public function streamAsk(string $question, object $user, ?string $conversationId = null): StreamableAgentResponse
+    {
+        if ($conversationId) {
+            $this->continue($conversationId, $user);
+        } else {
+            $this->forUser($user);
+        }
+
+        return $this->stream(
+            $question,
+            provider: config('ai.default'),
+            model: config('ai.default_model'),
+        );
     }
 
     protected function maxConversationMessages(): int

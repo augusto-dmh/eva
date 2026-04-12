@@ -8,6 +8,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 use Inertia\Response;
+use Laravel\Ai\Streaming\Events\TextDelta;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class DpAssistantController extends Controller
 {
@@ -82,6 +84,63 @@ class DpAssistantController extends Controller
             ->delete();
 
         return response()->json(['success' => true]);
+    }
+
+    public function streamResponse(Request $request): StreamedResponse
+    {
+        $request->validate([
+            'question' => 'required|string|max:1000',
+            'conversation_id' => 'nullable|string|max:36',
+        ]);
+
+        $agent = new DpAssistantAgent;
+        $streamable = $agent->streamAsk(
+            $request->question,
+            $request->user(),
+            $request->conversation_id,
+        );
+
+        return response()->stream(function () use ($streamable) {
+            foreach ($streamable as $event) {
+                if ($event instanceof TextDelta) {
+                    echo 'data: '.json_encode(['type' => 'chunk', 'delta' => $event->delta])."\n\n";
+                    if (ob_get_level()) {
+                        ob_flush();
+                    }
+                    flush();
+                }
+            }
+
+            echo 'data: '.json_encode([
+                'type' => 'done',
+                'conversation_id' => $streamable->conversationId,
+            ])."\n\n";
+            if (ob_get_level()) {
+                ob_flush();
+            }
+            flush();
+        }, 200, [
+            'Content-Type' => 'text/event-stream',
+            'Cache-Control' => 'no-cache',
+            'Connection' => 'keep-alive',
+            'X-Accel-Buffering' => 'no',
+        ]);
+    }
+
+    public function renameConversation(Request $request, string $id): JsonResponse
+    {
+        $request->validate(['title' => 'required|string|max:100']);
+
+        $updated = DB::table('agent_conversations')
+            ->where('id', $id)
+            ->where('user_id', $request->user()->id)
+            ->update(['title' => $request->title]);
+
+        if (! $updated) {
+            return response()->json(['error' => 'Conversa não encontrada.'], 404);
+        }
+
+        return response()->json(['title' => $request->title]);
     }
 
     public function toggleFavorite(Request $request, string $id): JsonResponse

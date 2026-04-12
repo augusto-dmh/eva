@@ -115,10 +115,12 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // DP Assistant — dedicated module + conversation management
     Route::get('/dp-assistant', [DpAssistantController::class, 'index'])->name('dp-assistant.index');
     Route::post('/dp-assistant/ask', [DpAssistantController::class, 'ask'])->name('dp-assistant.ask');
+    Route::post('/dp-assistant/stream', [DpAssistantController::class, 'streamResponse'])->name('dp-assistant.stream');
     Route::get('/dp-assistant/conversations', [DpAssistantController::class, 'conversations'])->name('dp-assistant.conversations');
     Route::get('/dp-assistant/conversations/{id}', [DpAssistantController::class, 'loadConversation'])->name('dp-assistant.conversations.show');
     Route::delete('/dp-assistant/conversations/{id}', [DpAssistantController::class, 'destroyConversation'])->name('dp-assistant.conversations.destroy');
     Route::patch('/dp-assistant/conversations/{id}/favorite', [DpAssistantController::class, 'toggleFavorite'])->name('dp-assistant.conversations.favorite');
+    Route::patch('/dp-assistant/conversations/{id}/title', [DpAssistantController::class, 'renameConversation'])->name('dp-assistant.conversations.rename');
 
     // Payroll Discrepancy Analysis (AJAX)
     Route::post('/payroll-cycles/{payrollCycle}/discrepancy-analysis', [PayrollDiscrepancyController::class, 'analyze'])->name('payroll-cycles.discrepancy-analysis')->middleware('can:admin');
