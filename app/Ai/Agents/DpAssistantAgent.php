@@ -2,6 +2,7 @@
 
 namespace App\Ai\Agents;
 
+use App\Ai\Middleware\FewShotExamplesMiddleware;
 use App\Ai\Tools\AnnualObligationsTool;
 use App\Ai\Tools\CollaboratorStatsTool;
 use App\Ai\Tools\DissidioInfoTool;
@@ -11,11 +12,12 @@ use Carbon\Carbon;
 use Laravel\Ai\Concerns\RemembersConversations;
 use Laravel\Ai\Contracts\Agent;
 use Laravel\Ai\Contracts\Conversational;
+use Laravel\Ai\Contracts\HasMiddleware;
 use Laravel\Ai\Contracts\HasTools;
 use Laravel\Ai\Promptable;
 use Laravel\Ai\Responses\StreamableAgentResponse;
 
-class DpAssistantAgent implements Agent, Conversational, HasTools
+class DpAssistantAgent implements Agent, Conversational, HasMiddleware, HasTools
 {
     use Promptable, RemembersConversations;
 
@@ -48,6 +50,13 @@ REGRAS TRABALHISTAS BRASILEIRAS:
 - PLR: IRRF exclusivo com tabela separada da folha (até R$ 6.000 isento, 7,5% até R$ 9.000, etc.).
 - Contribuição assistencial: 2 dias de salário em 4 parcelas. Colaborador pode registrar oposição via carta com AR.
 PROMPT;
+    }
+
+    public function middleware(): array
+    {
+        return [
+            new FewShotExamplesMiddleware,
+        ];
     }
 
     public function tools(): iterable
