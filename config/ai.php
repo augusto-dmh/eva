@@ -17,6 +17,18 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Streaming
+    |--------------------------------------------------------------------------
+    |
+    | Enable or disable streaming responses in the DP Assistant chat.
+    | Set to false if the configured provider does not support streaming.
+    |
+    */
+
+    'streaming' => env('AI_STREAMING_ENABLED', false),
+
+    /*
+    |--------------------------------------------------------------------------
     | Default Model
     |--------------------------------------------------------------------------
     |
@@ -121,7 +133,7 @@ return [
         // Models: glm-5.1, glm-5, glm-5-turbo, glm-4.7-flash (free tier)
         // Keys:   https://bigmodel.cn/usercenter/proj-mgmt/apikeys
         'zhipu' => [
-            'driver' => 'openai',
+            'driver' => 'groq',
             'key' => env('ZHIPU_API_KEY'),
             'url' => env('ZHIPU_URL', 'https://open.bigmodel.cn/api/paas/v4'),
         ],

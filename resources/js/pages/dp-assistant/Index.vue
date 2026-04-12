@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { Head, Link } from '@inertiajs/vue3';
 import { ref, nextTick, computed, onMounted, onUnmounted } from 'vue';
+import { useStream } from '@laravel/stream-vue';
 import { marked } from 'marked';
 import {
     ArrowLeft,
@@ -26,6 +27,10 @@ import {
     Zap,
 } from 'lucide-vue-next';
 import { dashboard } from '@/routes';
+
+const props = defineProps<{
+    streamingEnabled: boolean;
+}>();
 
 defineOptions({
     layout: {
@@ -301,14 +306,65 @@ const generalSuggestions = [
     'Quais as faixas de INSS 2025?',
 ];
 
+// ── Streaming via @laravel/stream-vue ────────────────────────────────────────
+const {
+    data: streamData,
+    isFetching,
+    isStreaming,
+    send: sendStream,
+    clearData,
+} = useStream<{ question: string; conversation_id?: string | null }>(
+    '/dp-assistant/stream',
+    {
+        csrfToken: getCsrfToken(),
+        onFinish() {
+            if (streamData.value) {
+                messages.value.push({
+                    id: ++messageIdCounter,
+                    role: 'assistant',
+                    text: streamData.value,
+                    timestamp: new Date(),
+                });
+            }
+            clearData();
+            if (!conversationId.value) fetchConversationIdFromLatest();
+            fetchConversations();
+            scrollToBottom();
+        },
+        onError() {
+            messages.value.push({
+                id: ++messageIdCounter,
+                role: 'assistant',
+                text: streamData.value || 'Erro ao conectar ao assistente. Verifique se AI_DEFAULT_PROVIDER e a chave da API estão configurados corretamente no .env.',
+                timestamp: new Date(),
+            });
+            clearData();
+            scrollToBottom();
+        },
+    },
+);
+
+async function fetchConversationIdFromLatest() {
+    try {
+        const res = await fetch('/dp-assistant/conversations', {
+            headers: { 'X-XSRF-TOKEN': getCsrfToken() },
+        });
+        if (res.ok) {
+            const data = await res.json();
+            if (data.conversations?.length > 0) {
+                conversationId.value = data.conversations[0].id;
+            }
+        }
+    } catch { /* silent */ }
+}
+
 // ── Chat logic ────────────────────────────────────────────────────────────────
 async function sendMessage(text?: string) {
     const question = (text ?? inputText.value).trim();
-    if (!question || loading.value) return;
+    if (!question || isFetching.value || isStreaming.value) return;
 
     inputText.value = '';
     error.value = '';
-    const isNewConversation = !conversationId.value;
 
     messages.value.push({
         id: ++messageIdCounter,
@@ -317,20 +373,20 @@ async function sendMessage(text?: string) {
         timestamp: new Date(),
     });
 
-    // Push an empty assistant message that will be filled by the stream
-    const assistantMsg: Message = {
-        id: ++messageIdCounter,
-        role: 'assistant',
-        text: '',
-        timestamp: new Date(),
-    };
-    messages.value.push(assistantMsg);
+    scrollToBottom();
 
-    await scrollToBottom();
+    if (props.streamingEnabled) {
+        sendStream({ question, conversation_id: conversationId.value });
+    } else {
+        await sendNonStreaming(question);
+    }
+}
+
+async function sendNonStreaming(question: string) {
     loading.value = true;
-
+    const isNewConversation = !conversationId.value;
     try {
-        const response = await fetch('/dp-assistant/stream', {
+        const response = await fetch('/dp-assistant/ask', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -338,48 +394,18 @@ async function sendMessage(text?: string) {
             },
             body: JSON.stringify({ question, conversation_id: conversationId.value }),
         });
-
         if (!response.ok) throw new Error(`HTTP ${response.status}`);
-
-        const reader = response.body!.getReader();
-        const decoder = new TextDecoder();
-        let buffer = '';
-
-        while (true) {
-            const { done, value } = await reader.read();
-            if (done) break;
-
-            buffer += decoder.decode(value, { stream: true });
-            const lines = buffer.split('\n');
-            buffer = lines.pop() ?? '';
-
-            for (const line of lines) {
-                if (!line.startsWith('data: ')) continue;
-                const json = line.slice(6).trim();
-                if (!json || json === '[DONE]') continue;
-
-                try {
-                    const event = JSON.parse(json);
-                    if (event.type === 'chunk' && event.delta) {
-                        assistantMsg.text += event.delta;
-                        await scrollToBottom();
-                    } else if (event.type === 'done') {
-                        if (event.conversation_id) {
-                            conversationId.value = event.conversation_id;
-                        }
-                        if (isNewConversation) fetchConversations();
-                    }
-                } catch { /* skip malformed JSON */ }
-            }
-        }
-
-        if (!assistantMsg.text) {
-            assistantMsg.text = 'Não foi possível obter uma resposta.';
-        }
+        const data = await response.json();
+        conversationId.value = data.conversation_id ?? conversationId.value;
+        messages.value.push({
+            id: ++messageIdCounter,
+            role: 'assistant',
+            text: data.answer ?? 'Não foi possível obter uma resposta.',
+            timestamp: new Date(),
+        });
+        if (isNewConversation && data.conversation_id) fetchConversations();
     } catch {
         error.value = 'Erro ao conectar ao assistente. Verifique se AI_DEFAULT_PROVIDER e a chave da API estão configurados corretamente no .env.';
-        // Remove the empty assistant message on error
-        messages.value = messages.value.filter(m => m.id !== assistantMsg.id);
     } finally {
         loading.value = false;
         await scrollToBottom();
@@ -498,7 +524,7 @@ function renderMarkdown(text: string): string {
     return marked.parse(text) as string;
 }
 
-const isEmpty = computed(() => messages.value.length === 0 && !loading.value);
+const isEmpty = computed(() => messages.value.length === 0 && !isFetching.value && !isStreaming.value);
 </script>
 
 <template>
@@ -839,8 +865,22 @@ const isEmpty = computed(() => messages.value.length === 0 && !loading.value);
                             </div>
                         </div>
 
-                        <!-- Typing indicator -->
-                        <div v-if="loading" class="flex justify-start gap-3">
+                        <!-- Streaming bubble: raw text + pulsing cursor -->
+                        <div v-if="isStreaming && streamData" class="flex justify-start gap-3">
+                            <div class="flex size-8 shrink-0 items-center justify-center self-end rounded-xl"
+                                 style="background:linear-gradient(135deg,rgba(0,150,202,0.2),rgba(0,30,98,0.3));border:1px solid rgba(0,150,202,0.25);">
+                                <Bot class="size-4" style="color:#0096ca;" />
+                            </div>
+                            <div class="flex max-w-[80%] flex-col gap-1">
+                                <p class="rounded-2xl rounded-bl-sm glass-card px-4 py-3 text-sm leading-relaxed whitespace-pre-wrap">
+                                    <span>{{ streamData }}</span>
+                                    <span class="ml-0.5 inline-block h-3.5 w-1.5 animate-pulse rounded-sm" style="background:#0096ca;" />
+                                </p>
+                            </div>
+                        </div>
+
+                        <!-- Typing indicator (before streaming starts) -->
+                        <div v-else-if="isFetching || loading" class="flex justify-start gap-3">
                             <div class="flex size-8 shrink-0 items-center justify-center self-end rounded-xl"
                                  style="background:linear-gradient(135deg,rgba(0,150,202,0.2),rgba(0,30,98,0.3));border:1px solid rgba(0,150,202,0.25);">
                                 <Bot class="size-4" style="color:#0096ca;" />
@@ -881,12 +921,12 @@ const isEmpty = computed(() => messages.value.length === 0 && !loading.value);
                             @input="($event.target as HTMLTextAreaElement).style.height = 'auto'; ($event.target as HTMLTextAreaElement).style.height = ($event.target as HTMLTextAreaElement).scrollHeight + 'px'"
                         />
                         <button
-                            :disabled="!inputText.trim() || loading"
+                            :disabled="!inputText.trim() || isFetching || isStreaming || loading"
                             class="ml-3 flex size-8 shrink-0 items-center justify-center rounded-full transition-all disabled:opacity-30"
-                            :style="inputText.trim() && !loading ? 'background:linear-gradient(135deg,#0096ca,#004d80);' : 'background:rgba(0,150,202,0.15);'"
+                            :style="inputText.trim() && !isFetching && !isStreaming && !loading ? 'background:linear-gradient(135deg,#0096ca,#004d80);' : 'background:rgba(0,150,202,0.15);'"
                             @click="sendMessage()"
                         >
-                            <Send class="size-4" :style="inputText.trim() && !loading ? 'color:#fff;' : 'color:#0096ca;'" />
+                            <Send class="size-4" :style="inputText.trim() && !isFetching && !isStreaming && !loading ? 'color:#fff;' : 'color:#0096ca;'" />
                         </button>
                     </div>
                 </div>
@@ -895,12 +935,25 @@ const isEmpty = computed(() => messages.value.length === 0 && !loading.value);
     </div>
 </template>
 
-<style scoped>
+<style>
+.msg-fade-enter-active { animation: msg-fade-in 0.4s ease-out; }
+.msg-fade-leave-active { animation: msg-fade-out 0.15s ease-in; }
+@keyframes msg-fade-in {
+    from { opacity: 0; filter: blur(2px); transform: translateY(2px); }
+    to { opacity: 1; filter: blur(0); transform: translateY(0); }
+}
+@keyframes msg-fade-out {
+    from { opacity: 1; }
+    to { opacity: 0; }
+}
+
 @keyframes typing-dot {
     0%, 60%, 100% { opacity: 0.3; transform: translateY(0); }
     30% { opacity: 1; transform: translateY(-3px); }
 }
+</style>
 
+<style scoped>
 /* Markdown rendered inside assistant chat bubbles */
 :deep(.glass-card) {
     h1, h2, h3, h4 {
@@ -919,6 +972,10 @@ const isEmpty = computed(() => messages.value.length === 0 && !loading.value);
         padding-left: 1.3em;
         margin: 0.4em 0;
     }
+    ul { list-style-type: disc; }
+    ol { list-style-type: decimal; }
+    ul ul { list-style-type: circle; }
+    ol ol { list-style-type: lower-alpha; }
     li { margin: 0.15em 0; }
 
     strong { color: var(--foreground); }
