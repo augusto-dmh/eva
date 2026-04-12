@@ -5,6 +5,7 @@ namespace App\Providers;
 use App\Models\PjInvoice;
 use App\Models\User;
 use App\Policies\PjInvoicePolicy;
+use App\Services\SlackNotificationService;
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\DB;
@@ -19,7 +20,8 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        //
+        $this->app->singleton(SlackNotificationService::class, fn () => new SlackNotificationService(config('services.slack.simulate', true))
+        );
     }
 
     /**
