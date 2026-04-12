@@ -100,27 +100,20 @@ class DpAssistantController extends Controller
             $request->conversation_id,
         );
 
-        return response()->stream(function () use ($streamable) {
-            while (ob_get_level()) {
-                ob_end_flush();
-            }
-
+        return response()->stream(function () use ($streamable): void {
             foreach ($streamable as $event) {
                 if ($event instanceof TextDelta) {
-                    echo 'data: '.json_encode(['type' => 'chunk', 'delta' => $event->delta])."\n\n";
+                    echo $event->delta;
+
+                    if (ob_get_level()) {
+                        ob_flush();
+                    }
+
                     flush();
                 }
             }
-
-            echo 'data: '.json_encode([
-                'type' => 'done',
-                'conversation_id' => $streamable->conversationId,
-            ])."\n\n";
-            flush();
-        }, 200, [
-            'Content-Type' => 'text/event-stream',
-            'Cache-Control' => 'no-cache',
-            'Connection' => 'keep-alive',
+        }, headers: [
+            'Content-Type' => 'text/plain; charset=utf-8',
             'X-Accel-Buffering' => 'no',
         ]);
     }

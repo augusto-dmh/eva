@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { Head, Link } from '@inertiajs/vue3';
 import { ref, nextTick, computed, onMounted, onUnmounted } from 'vue';
+import { useStream } from '@laravel/stream-vue';
 import { marked } from 'marked';
 import {
     ArrowLeft,
@@ -301,14 +302,68 @@ const generalSuggestions = [
     'Quais as faixas de INSS 2025?',
 ];
 
+// ── Streaming via @laravel/stream-vue ────────────────────────────────────────
+const streamingMessageId = ref<number | null>(null);
+
+const {
+    data: streamData,
+    isFetching,
+    isStreaming,
+    send: sendStream,
+    clearData,
+} = useStream<{ question: string; conversation_id?: string | null }>(
+    '/dp-assistant/stream',
+    {
+        csrfToken: getCsrfToken(),
+        onFinish() {
+            if (streamData.value && streamingMessageId.value !== null) {
+                // Find the streaming message and finalize it
+                const msg = messages.value.find(m => m.id === streamingMessageId.value);
+                if (msg) msg.text = streamData.value;
+            }
+            streamingMessageId.value = null;
+            clearData();
+            if (!conversationId.value) fetchConversationIdFromLatest();
+            fetchConversations();
+            scrollToBottom();
+        },
+        onError() {
+            if (!streamData.value) {
+                messages.value.push({
+                    id: ++messageIdCounter,
+                    role: 'assistant',
+                    text: 'Erro ao conectar ao assistente. Verifique se AI_DEFAULT_PROVIDER e a chave da API estão configurados corretamente no .env.',
+                    timestamp: new Date(),
+                });
+            }
+            streamingMessageId.value = null;
+            clearData();
+            scrollToBottom();
+        },
+    },
+);
+
+async function fetchConversationIdFromLatest() {
+    try {
+        const res = await fetch('/dp-assistant/conversations', {
+            headers: { 'X-XSRF-TOKEN': getCsrfToken() },
+        });
+        if (res.ok) {
+            const data = await res.json();
+            if (data.conversations?.length > 0) {
+                conversationId.value = data.conversations[0].id;
+            }
+        }
+    } catch { /* silent */ }
+}
+
 // ── Chat logic ────────────────────────────────────────────────────────────────
-async function sendMessage(text?: string) {
+function sendMessage(text?: string) {
     const question = (text ?? inputText.value).trim();
-    if (!question || loading.value) return;
+    if (!question || isFetching.value || isStreaming.value) return;
 
     inputText.value = '';
     error.value = '';
-    const isNewConversation = !conversationId.value;
 
     messages.value.push({
         id: ++messageIdCounter,
@@ -317,37 +372,22 @@ async function sendMessage(text?: string) {
         timestamp: new Date(),
     });
 
-    await scrollToBottom();
-    loading.value = true;
+    // Push placeholder assistant message for streaming
+    const assistantId = ++messageIdCounter;
+    streamingMessageId.value = assistantId;
+    messages.value.push({
+        id: assistantId,
+        role: 'assistant',
+        text: '',
+        timestamp: new Date(),
+    });
 
-    try {
-        const response = await fetch('/dp-assistant/ask', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-XSRF-TOKEN': getCsrfToken(),
-            },
-            body: JSON.stringify({ question, conversation_id: conversationId.value }),
-        });
+    scrollToBottom();
 
-        if (!response.ok) throw new Error(`HTTP ${response.status}`);
-
-        const data = await response.json();
-        const isNew = isNewConversation && data.conversation_id;
-        conversationId.value = data.conversation_id ?? conversationId.value;
-        messages.value.push({
-            id: ++messageIdCounter,
-            role: 'assistant',
-            text: data.answer ?? 'Não foi possível obter uma resposta.',
-            timestamp: new Date(),
-        });
-        if (isNew) fetchConversations();
-    } catch {
-        error.value = 'Erro ao conectar ao assistente. Verifique se AI_DEFAULT_PROVIDER e a chave da API estão configurados corretamente no .env.';
-    } finally {
-        loading.value = false;
-        await scrollToBottom();
-    }
+    sendStream({
+        question,
+        conversation_id: conversationId.value,
+    });
 }
 
 async function scrollToBottom() {
@@ -462,7 +502,7 @@ function renderMarkdown(text: string): string {
     return marked.parse(text) as string;
 }
 
-const isEmpty = computed(() => messages.value.length === 0 && !loading.value);
+const isEmpty = computed(() => messages.value.length === 0 && !isFetching.value && !isStreaming.value);
 </script>
 
 <template>
@@ -767,7 +807,17 @@ const isEmpty = computed(() => messages.value.length === 0 && !loading.value);
 
                             <!-- Bubble -->
                             <div :class="['group relative max-w-[80%]', msg.role === 'user' ? 'items-end' : 'items-start', 'flex flex-col gap-1']">
+                                <!-- Streaming: raw text + pulsing cursor -->
+                                <p
+                                    v-if="msg.role === 'assistant' && msg.id === streamingMessageId && isStreaming"
+                                    :class="['rounded-2xl rounded-bl-sm glass-card px-4 py-3 text-sm leading-relaxed whitespace-pre-wrap']"
+                                >
+                                    <span>{{ streamData ?? '' }}</span>
+                                    <span class="ml-0.5 inline-block h-3.5 w-1.5 animate-pulse rounded-sm" style="background:#0096ca;" />
+                                </p>
+                                <!-- Final: rendered markdown -->
                                 <div
+                                    v-else
                                     :class="[
                                         'rounded-2xl px-4 py-3 text-sm leading-relaxed',
                                         msg.role === 'user'
@@ -804,7 +854,7 @@ const isEmpty = computed(() => messages.value.length === 0 && !loading.value);
                         </div>
 
                         <!-- Typing indicator -->
-                        <div v-if="loading" class="flex justify-start gap-3">
+                        <div v-if="isFetching && !isStreaming" class="flex justify-start gap-3">
                             <div class="flex size-8 shrink-0 items-center justify-center self-end rounded-xl"
                                  style="background:linear-gradient(135deg,rgba(0,150,202,0.2),rgba(0,30,98,0.3));border:1px solid rgba(0,150,202,0.25);">
                                 <Bot class="size-4" style="color:#0096ca;" />
@@ -845,12 +895,12 @@ const isEmpty = computed(() => messages.value.length === 0 && !loading.value);
                             @input="($event.target as HTMLTextAreaElement).style.height = 'auto'; ($event.target as HTMLTextAreaElement).style.height = ($event.target as HTMLTextAreaElement).scrollHeight + 'px'"
                         />
                         <button
-                            :disabled="!inputText.trim() || loading"
+                            :disabled="!inputText.trim() || isFetching || isStreaming || loading"
                             class="ml-3 flex size-8 shrink-0 items-center justify-center rounded-full transition-all disabled:opacity-30"
-                            :style="inputText.trim() && !loading ? 'background:linear-gradient(135deg,#0096ca,#004d80);' : 'background:rgba(0,150,202,0.15);'"
+                            :style="inputText.trim() && !isFetching && !isStreaming && !loading ? 'background:linear-gradient(135deg,#0096ca,#004d80);' : 'background:rgba(0,150,202,0.15);'"
                             @click="sendMessage()"
                         >
-                            <Send class="size-4" :style="inputText.trim() && !loading ? 'color:#fff;' : 'color:#0096ca;'" />
+                            <Send class="size-4" :style="inputText.trim() && !isFetching && !isStreaming && !loading ? 'color:#fff;' : 'color:#0096ca;'" />
                         </button>
                     </div>
                 </div>
