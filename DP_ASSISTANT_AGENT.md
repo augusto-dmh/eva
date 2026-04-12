@@ -164,6 +164,62 @@ OPENAI_API_KEY=sk-...
 
 ---
 
+## Base de conhecimento (few-shot examples)
+
+O agente usa uma base de exemplos bons e ruins para guiar a qualidade das respostas. Os exemplos ficam em um arquivo JSON separado — **não são injetados no prompt de sistema**.
+
+### Como funciona
+
+1. O usuário faz uma pergunta
+2. O `FewShotExamplesMiddleware` carrega `storage/ai/dp-assistant-examples.json`
+3. Compara palavras-chave da pergunta com as categorias de exemplos
+4. Seleciona os 1-2 exemplos mais relevantes
+5. Injeta um bloco "EXEMPLOS DE REFERÊNCIA" antes da pergunta via `AgentPrompt::prepend()`
+6. O LLM vê os exemplos como contexto e ajusta formato/qualidade da resposta
+
+### Estrutura de um exemplo
+
+```json
+{
+  "category": "vacation_eligibility",
+  "keywords": ["férias", "elegível", "período aquisitivo"],
+  "question": "Quem está elegível para férias agora?",
+  "good_answer": "Resposta formatada com tabela, dados completos...",
+  "bad_answer": "Resposta genérica sem formatação...",
+  "why_bad": "Explicação do que está errado na resposta ruim"
+}
+```
+
+### Como adicionar um novo exemplo
+
+1. Abra `storage/ai/dp-assistant-examples.json`
+2. Adicione um novo objeto ao array com: `category`, `keywords`, `question`, `good_answer`, `bad_answer`, `why_bad`
+3. As `keywords` são usadas para matching — inclua variações (com e sem acento, singular/plural)
+4. O `good_answer` deve ser o formato ideal que o agente deve seguir
+5. O `bad_answer` + `why_bad` ensinam o que evitar
+
+### Categorias existentes
+
+| Categoria | Keywords principais | O que ensina |
+|---|---|---|
+| `vacation_eligibility` | férias, elegível | Tabelas para listas de pessoas |
+| `payroll_status` | folha, pagamento | Status com valores e NFs pendentes |
+| `collaborator_stats` | colaboradores, headcount | Breakdown por tipo e departamento |
+| `dissidio` | dissídio, reajuste | Percentuais, datas, retroativo |
+| `thirteenth_salary` | 13°, décimo terceiro | Cálculo passo a passo com fórmula |
+| `plr` | PLR, lucros | Proporcional + tabela IRRF |
+| `dsr_commission` | DSR, comissão | Fórmula com números concretos |
+| `inss_irrf` | INSS, faixas | Tabela progressiva completa |
+
+### Arquivos
+
+| Arquivo | Descrição |
+|---------|-----------|
+| `storage/ai/dp-assistant-examples.json` | Base de conhecimento com exemplos bons/ruins |
+| `app/Ai/Middleware/FewShotExamplesMiddleware.php` | Middleware que seleciona e injeta exemplos |
+
+---
+
 ## Como adicionar uma nova ferramenta
 
 1. Crie `app/Ai/Tools/MinhaNovaFerramenta.php` implementando `Laravel\Ai\Contracts\Tool`:
