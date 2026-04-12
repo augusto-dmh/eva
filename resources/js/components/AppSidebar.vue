@@ -121,19 +121,14 @@ const footerNavItems: NavItem[] = [];
                     <SidebarMenuButton size="lg" as-child>
                         <Link :href="dashboard()">
                             <div
-                                class="flex aspect-square size-8 items-center justify-center rounded-md bg-primary text-primary-foreground"
+                                class="flex aspect-square size-8 items-center justify-center rounded-lg"
+                                style="background: linear-gradient(135deg, rgba(28, 85, 177, 0.95), rgba(59, 130, 246, 0.8)); box-shadow: 0 0 16px rgba(59, 130, 246, 0.3);"
                             >
-                                <span class="text-xs font-bold">E</span>
+                                <span class="text-xs font-bold text-white">E</span>
                             </div>
                             <div class="ml-1 grid flex-1 text-left text-sm">
-                                <span
-                                    class="truncate font-semibold text-primary"
-                                    >EVA</span
-                                >
-                                <span
-                                    class="truncate text-xs text-muted-foreground"
-                                    >Portal do Colaborador</span
-                                >
+                                <span class="truncate font-bold tracking-wide text-white" style="font-size: 0.8rem; letter-spacing: 0.08em;">EVA</span>
+                                <span class="truncate text-xs" style="color: rgba(148, 163, 184, 0.8);">Departamento Pessoal</span>
                             </div>
                         </Link>
                     </SidebarMenuButton>
