@@ -14,7 +14,12 @@ class StorePayrollCycleRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'mes_referencia' => ['required', 'string', 'regex:/^\d{4}-(0[1-9]|1[0-2])$/'],
+            'mes_referencia' => [
+                'required',
+                'string',
+                'regex:/^\d{4}-(0[1-9]|1[0-2])$/',
+                'unique:payroll_cycles,mes_referencia',
+            ],
             'data_pagamento_folha' => ['nullable', 'date'],
             'data_pagamento_comissao' => ['nullable', 'date'],
             'observacoes' => ['nullable', 'string'],

@@ -48,13 +48,13 @@ describe('PayrollCycleController', function () {
             ]);
         });
 
-        it('rejects duplicate mes_referencia with unique constraint error', function () {
+        it('rejects duplicate mes_referencia with validation error', function () {
             $admin = User::factory()->admin()->create();
             PayrollCycle::factory()->forMonth(2026, 6)->create();
 
             $this->actingAs($admin)
                 ->post('/payroll-cycles', ['mes_referencia' => '2026-06'])
-                ->assertStatus(500); // DB unique constraint violation
+                ->assertSessionHasErrors('mes_referencia');
         });
 
         it('rejects invalid mes_referencia format', function () {
