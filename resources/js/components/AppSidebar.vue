@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { Link, usePage } from '@inertiajs/vue3';
 import {
+    Bot,
     CalendarDays,
     FileText,
     Gift,
@@ -77,6 +78,11 @@ const adminNavItems: NavItem[] = [
         href: '/union/opposition',
         icon: HandCoins,
     },
+    {
+        title: 'Assistente de DP',
+        href: '/dp-assistant',
+        icon: Bot,
+    },
 ];
 
 const baseCollaboratorNavItems: NavItem[] = [
@@ -89,6 +95,11 @@ const baseCollaboratorNavItems: NavItem[] = [
         title: 'Meu Perfil',
         href: selfServiceProfile(),
         icon: User,
+    },
+    {
+        title: 'Assistente de DP',
+        href: '/dp-assistant',
+        icon: Bot,
     },
 ];
 
