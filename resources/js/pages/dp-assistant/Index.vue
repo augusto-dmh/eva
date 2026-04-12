@@ -10,6 +10,7 @@ import {
     Clock,
     Copy,
     Check,
+    Download,
     Gift,
     HandCoins,
     Receipt,
@@ -212,6 +213,65 @@ async function copyText(msg: Message) {
     await navigator.clipboard.writeText(msg.text);
     msg.copied = true;
     setTimeout(() => { msg.copied = false; }, 2000);
+}
+
+// ── CSV extraction from markdown ────────────────────────────────────────────
+function escapeCsvField(field: string): string {
+    const trimmed = field.trim();
+    if (trimmed.includes(',') || trimmed.includes('"') || trimmed.includes('\n')) {
+        return `"${trimmed.replace(/"/g, '""')}"`;
+    }
+    return trimmed;
+}
+
+function extractCsvFromText(text: string): string | null {
+    const lines = text.split('\n');
+    const csvRows: string[][] = [];
+
+    // Strategy 1: markdown tables (| col1 | col2 |)
+    const tableLines = lines.filter(l => l.trim().startsWith('|') && l.trim().endsWith('|'));
+    if (tableLines.length >= 2) {
+        for (const line of tableLines) {
+            const cells = line.split('|').slice(1, -1).map(c => c.trim());
+            // Skip separator rows (|---|---|)
+            if (cells.every(c => /^[-:\s]+$/.test(c))) continue;
+            csvRows.push(cells);
+        }
+    }
+
+    // Strategy 2: pipe-separated bullet lists (- Name | date | role)
+    if (csvRows.length === 0) {
+        const bulletLines = lines.filter(l => /^\s*[-*]\s+.+\|.+/.test(l));
+        if (bulletLines.length >= 1) {
+            for (const line of bulletLines) {
+                const content = line.replace(/^\s*[-*]\s+/, '');
+                const cells = content.split('|').map(c => c.trim());
+                csvRows.push(cells);
+            }
+        }
+    }
+
+    if (csvRows.length === 0) return null;
+
+    return csvRows.map(row => row.map(escapeCsvField).join(',')).join('\n');
+}
+
+function hasDownloadableData(text: string): boolean {
+    return extractCsvFromText(text) !== null;
+}
+
+function downloadCsv(msg: Message) {
+    const csv = extractCsvFromText(msg.text);
+    if (!csv) return;
+
+    const bom = '\uFEFF'; // UTF-8 BOM for Excel compatibility
+    const blob = new Blob([bom + csv], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `eva-dp-assistant-${new Date().toISOString().slice(0, 10)}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
 }
 
 function formatTime(date: Date): string {
@@ -454,6 +514,14 @@ const isEmpty = computed(() => messages.value.length === 0 && !loading.value);
                                             class="size-3 text-muted-foreground"
                                             :style="msg.copied ? 'color:#10b981' : ''"
                                         />
+                                    </button>
+                                    <button
+                                        v-if="msg.role === 'assistant' && hasDownloadableData(msg.text)"
+                                        class="opacity-0 transition-opacity group-hover:opacity-100"
+                                        title="Baixar CSV"
+                                        @click="downloadCsv(msg)"
+                                    >
+                                        <Download class="size-3 text-muted-foreground" />
                                     </button>
                                 </div>
                             </div>
