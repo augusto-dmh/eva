@@ -1,0 +1,66 @@
+[
+  {
+    "category": "vacation_eligibility",
+    "keywords": ["férias", "elegível", "elegíveis", "período aquisitivo", "férias pendentes", "recesso"],
+    "question": "Quem está elegível para férias agora?",
+    "good_answer": "**CLT com férias pendentes de agendamento (3):**\n\n| Colaborador | Admissão | Cargo | Departamento |\n|---|---|---|---|\n| Ana Silva | 15/03/2024 | Analista de Dados | Tecnologia |\n| Carlos Souza | 01/02/2024 | Closer Sênior | Comercial |\n| Maria Lopes | 10/01/2024 | Coordenadora | RH |\n\n**Estagiários com recesso pendente (1):**\n\n| Colaborador | Admissão | Departamento |\n|---|---|---|\n| João Pereira | 01/09/2025 | Marketing |\n\nTodos completaram o período aquisitivo e **não estão em lotes ativos**. PJs e sócios não têm direito a férias pela CLT.",
+    "bad_answer": "Existem alguns colaboradores que podem tirar férias. Ana Silva, Carlos Souza e Maria Lopes estão elegíveis porque já passaram dos 12 meses. João Pereira é estagiário e também pode tirar recesso.",
+    "why_bad": "Sem tabela — dados difíceis de comparar. Não mostra datas de admissão, cargos nem departamentos. Não separa CLT de estagiários. Não menciona se estão em lotes ativos."
+  },
+  {
+    "category": "payroll_status",
+    "keywords": ["folha", "pagamento", "ciclo", "salário", "líquido", "bruto", "NF", "nota fiscal"],
+    "question": "Qual o status da folha atual?",
+    "good_answer": "**Último ciclo de folha — Março/2026:**\n\n| Mês | Status | Bruto | Líquido | PJ | NF Pendentes |\n|---|---|---|---|---|---|\n| 03/2026 | Em Revisão | R$ 185.420,00 | R$ 142.300,00 | R$ 45.600,00 | 2/8 |\n| 02/2026 | Fechado | R$ 183.100,00 | R$ 140.800,00 | R$ 44.200,00 | 0/8 |\n| 01/2026 | Fechado | R$ 181.500,00 | R$ 139.200,00 | R$ 43.800,00 | 0/8 |\n\n⚠️ **2 notas fiscais PJ pendentes** no ciclo atual. Prazo para envio encerra no último dia útil do mês.",
+    "bad_answer": "A folha de março está em revisão. O total bruto é R$ 185.420 e o líquido é R$ 142.300. Tem 2 NFs pendentes.",
+    "why_bad": "Mostra apenas o ciclo atual sem comparar com anteriores. Não mostra valores PJ. Não destaca a urgência das NFs pendentes."
+  },
+  {
+    "category": "collaborator_stats",
+    "keywords": ["colaboradores", "headcount", "quantos", "CLT", "PJ", "estagiário", "departamento", "admissão", "desligamento"],
+    "question": "Quantos colaboradores CLT temos?",
+    "good_answer": "**Headcount ativo: 32 colaboradores**\n\n| Tipo de Contrato | Quantidade |\n|---|---|\n| CLT | 22 |\n| PJ | 6 |\n| Estagiário | 3 |\n| Sócio | 1 |\n\n**Por departamento (top 5):**\n\n| Departamento | Colaboradores |\n|---|---|\n| Comercial | 10 |\n| Tecnologia | 8 |\n| Operações | 5 |\n| RH | 4 |\n| Marketing | 3 |\n\n**Admissões recentes (últimos 3 meses):** 2 novos CLTs e 1 estagiário.",
+    "bad_answer": "Temos 22 CLTs. No total são 32 pessoas na empresa.",
+    "why_bad": "Resposta mínima sem contexto. Não mostra os outros tipos de contrato, não detalha por departamento, não menciona movimentações recentes."
+  },
+  {
+    "category": "dissidio",
+    "keywords": ["dissídio", "reajuste", "coletivo", "sindicato", "retroativo", "data-base", "abono"],
+    "question": "Qual o percentual do último dissídio?",
+    "good_answer": "**Último dissídio registrado — 2025:**\n\n| Ano | Percentual | Status | Data-base | Colaboradores |\n|---|---|---|---|---|\n| 2025 | 4,81% | Aplicado | 01/09/2025 | 22 |\n| 2024 | 5,20% | Aplicado | 01/09/2024 | 20 |\n\n**Sobre o retroativo:** O dissídio de 2025 com data-base em setembro e aplicação em janeiro gerou **4 meses de diferencial retroativo** (set, out, nov, dez). Esse diferencial é pago como **abono pecuniário**, sem incidência de INSS/FGTS.",
+    "bad_answer": "O último dissídio foi de 4,81% em 2025.",
+    "why_bad": "Não mostra histórico para comparação. Não explica o retroativo, a data-base, nem quantos colaboradores foram afetados. Para DP, o retroativo é a parte mais importante."
+  },
+  {
+    "category": "thirteenth_salary",
+    "keywords": ["13°", "décimo terceiro", "décimo", "terceiro", "parcela", "primeira", "segunda"],
+    "question": "Como calcular o 13° de um colaborador admitido em maio?",
+    "good_answer": "**Cálculo do 13° salário — admissão em maio:**\n\nConsiderando salário de R$ 5.000,00:\n\n1. **Meses trabalhados no ano:** maio a dezembro = **8 meses** (admissão antes do dia 15 → conta o mês)\n2. **13° proporcional:** R$ 5.000 × 8/12 = **R$ 3.333,33**\n3. **1ª parcela (até 30/nov):** R$ 3.333,33 × 50% = **R$ 1.666,67** (sem descontos)\n4. **2ª parcela (até 20/dez):** R$ 1.666,67 − INSS − IRRF\n\n| Parcela | Valor Bruto | INSS | IRRF | Líquido |\n|---|---|---|---|---|\n| 1ª (nov) | R$ 1.666,67 | — | — | R$ 1.666,67 |\n| 2ª (dez) | R$ 1.666,67 | R$ 149,98 | isento | R$ 1.516,69 |\n\n*INSS calculado sobre o total (R$ 3.333,33) com desconto na 2ª parcela.*",
+    "bad_answer": "Se entrou em maio, trabalhou 8 meses. O 13° é proporcional: salário vezes 8 dividido por 12. A primeira parcela é metade e a segunda tem desconto de INSS e IRRF.",
+    "why_bad": "Não mostra os números concretos nem o raciocínio passo a passo. Sem tabela comparativa das parcelas. Não calcula INSS/IRRF — apenas menciona que existem."
+  },
+  {
+    "category": "plr",
+    "keywords": ["PLR", "participação", "lucros", "resultados", "distribuição"],
+    "question": "Como funciona o cálculo proporcional do PLR?",
+    "good_answer": "**PLR — Cálculo proporcional:**\n\nA distribuição é proporcional ao **salário** e ao **tempo de casa** no ano.\n\n**Exemplo:** Valor total da PLR = R$ 100.000, colaborador com salário R$ 6.000, admitido em abril (9 meses no ano):\n\n1. **Fator tempo:** 9/12 = 0,75\n2. **Participação proporcional:** calculada sobre o peso relativo do salário × fator tempo\n\n**IRRF exclusivo de PLR (tabela separada da folha):**\n\n| Faixa | Alíquota | Dedução |\n|---|---|---|\n| Até R$ 6.000,00 | Isento | — |\n| R$ 6.000,01 a R$ 9.000,00 | 7,5% | R$ 450,00 |\n| R$ 9.000,01 a R$ 12.000,00 | 15% | R$ 1.125,00 |\n| R$ 12.000,01 a R$ 15.000,00 | 22,5% | R$ 2.025,00 |\n| Acima de R$ 15.000,00 | 27,5% | R$ 2.775,00 |\n\n⚠️ O IRRF de PLR **não soma** com o IRRF da folha — tabela exclusiva.",
+    "bad_answer": "PLR é proporcional ao salário e tempo de casa. Tem IRRF separado.",
+    "why_bad": "Sem exemplo numérico. Não mostra a tabela de IRRF de PLR. Não explica o fator tempo. Resposta genérica que não ajuda no cálculo real."
+  },
+  {
+    "category": "dsr_commission",
+    "keywords": ["DSR", "comissão", "comissões", "descanso", "remunerado", "closer", "advisor"],
+    "question": "Como calcular o DSR sobre comissões?",
+    "good_answer": "**Cálculo do DSR sobre comissões:**\n\nFórmula: **DSR = (comissão bruta ÷ dias úteis) × domingos e feriados**\n\n**Exemplo prático — Março/2026:**\n- Comissão bruta do Closer: **R$ 8.000,00**\n- Dias úteis no mês: **22**\n- Domingos e feriados: **9**\n\n**Cálculo:**\n1. Valor diário: R$ 8.000 ÷ 22 = **R$ 363,64**\n2. DSR: R$ 363,64 × 9 = **R$ 3.272,73**\n3. **Total remuneração:** R$ 8.000 + R$ 3.272,73 = **R$ 11.272,73**\n\nO DSR incide sobre comissões de **Closers** (variáveis) e **Advisors** (quando aplicável). É base para cálculo de FGTS, férias e 13° salário.",
+    "bad_answer": "DSR é a comissão dividida pelos dias úteis vezes os domingos do mês. Tipo, 8000 dividido por 22 vezes 9 dá uns 3200 e pouco.",
+    "why_bad": "Cálculo impreciso ('uns 3200 e pouco'). Sem formatação — difícil acompanhar os passos. Não mostra o total final. Não menciona que DSR é base para encargos."
+  },
+  {
+    "category": "inss_irrf",
+    "keywords": ["INSS", "faixas", "alíquota", "progressiva", "IRRF", "imposto", "renda", "dedução"],
+    "question": "Quais são as faixas de INSS de 2025?",
+    "good_answer": "**Tabela INSS 2025 — Alíquotas progressivas:**\n\n| Faixa Salarial | Alíquota | Parcela a Deduzir |\n|---|---|---|\n| Até R$ 1.518,00 | 7,5% | — |\n| R$ 1.518,01 a R$ 2.793,88 | 9% | R$ 22,77 |\n| R$ 2.793,89 a R$ 4.190,83 | 12% | R$ 106,59 |\n| R$ 4.190,84 a R$ 8.157,41 | 14% | R$ 190,40 |\n\n**Teto INSS 2025:** R$ 951,63 (contribuição máxima)\n\n⚠️ O cálculo é **progressivo** — cada faixa aplica a alíquota apenas sobre a parcela do salário dentro daquela faixa, similar ao IRRF.",
+    "bad_answer": "O INSS de 2025 tem faixas de 7,5%, 9%, 12% e 14%.",
+    "why_bad": "Sem os valores das faixas — impossível fazer qualquer cálculo. Não mostra as parcelas a deduzir. Não menciona o teto nem que é progressivo."
+  }
+]
