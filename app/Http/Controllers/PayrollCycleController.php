@@ -7,6 +7,7 @@ use App\Exceptions\InvalidTransitionException;
 use App\Http\Requests\Payroll\StorePayrollCycleRequest;
 use App\Models\Collaborator;
 use App\Models\PayrollCycle;
+use App\Services\Payroll\PayrollConsolidationService;
 use App\Services\Payroll\PayrollCycleService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -15,7 +16,10 @@ use Inertia\Response;
 
 class PayrollCycleController extends Controller
 {
-    public function __construct(private PayrollCycleService $service) {}
+    public function __construct(
+        private PayrollCycleService $service,
+        private PayrollConsolidationService $consolidationService,
+    ) {}
 
     public function index(): Response
     {
@@ -67,6 +71,9 @@ class PayrollCycleController extends Controller
                 fn ($s) => ['value' => $s->value, 'label' => $s->label()],
                 PayrollCycleStatus::cases()
             ),
+            'consolidation' => $this->consolidationService->consolidate($payrollCycle),
+            'pjInvoiceStatus' => $this->consolidationService->getPjInvoiceStatus($payrollCycle),
+            'completionStatus' => $this->consolidationService->getEntryCompletionStatus($payrollCycle),
         ]);
     }
 
@@ -85,5 +92,18 @@ class PayrollCycleController extends Controller
         }
 
         return back()->with('success', 'Status do ciclo atualizado.');
+    }
+
+    public function commissions(PayrollCycle $payrollCycle): Response
+    {
+        $entries = $payrollCycle->entries()
+            ->with('collaborator')
+            ->whereHas('collaborator', fn ($q) => $q->where('tipo_comissao', '!=', 'none'))
+            ->get();
+
+        return Inertia::render('payroll-cycles/Commissions', [
+            'cycle' => $payrollCycle,
+            'entries' => $entries,
+        ]);
     }
 }

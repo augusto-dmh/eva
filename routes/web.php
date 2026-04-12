@@ -29,6 +29,14 @@ Route::middleware(['auth', 'verified'])->group(function () {
         ->name('payroll-cycles.entries.update')
         ->middleware('can:admin');
 
+    Route::put('/payroll-entries/{payrollEntry}', [PayrollEntryController::class, 'update'])
+        ->name('payroll-entries.update')
+        ->middleware('can:admin');
+
+    Route::get('/payroll-cycles/{payrollCycle}/commissions', [PayrollCycleController::class, 'commissions'])
+        ->name('payroll-cycles.commissions')
+        ->middleware('can:admin');
+
     // Admin PJ invoice management
     Route::get('payroll-cycles/{payrollCycle}/pj-invoices', [PjInvoiceController::class, 'index'])
         ->name('pj-invoices.index')
