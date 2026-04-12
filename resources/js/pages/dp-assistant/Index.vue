@@ -46,19 +46,48 @@ const inputText = ref('');
 const loading = ref(false);
 const error = ref('');
 const chatContainer = ref<HTMLDivElement | null>(null);
+const conversationId = ref<string | null>(null);
 let messageIdCounter = 0;
 
-// ── Capabilities ─────────────────────────────────────────────────────────────
-const capabilities = [
+function startNewConversation() {
+    conversationId.value = null;
+    messages.value = [];
+    error.value = '';
+}
+
+// ── Capabilities: System-specific (tool-backed) ─────────────────────────────
+const systemCapabilities = [
     {
         icon: CalendarDays,
         color: '#f59e0b',
         bg: 'rgba(245,158,11,0.08)',
         border: 'rgba(245,158,11,0.2)',
         title: 'Elegibilidade de Férias',
-        description: 'Consulte quem está elegível, períodos aquisitivos e cálculo de valores.',
+        description: 'Consulte quem está elegível, períodos aquisitivos e lotes ativos.',
         example: 'Quais colaboradores CLT completam 12 meses de período aquisitivo em outubro?',
     },
+    {
+        icon: Clock,
+        color: '#10b981',
+        bg: 'rgba(16,185,129,0.08)',
+        border: 'rgba(16,185,129,0.2)',
+        title: 'Status da Folha',
+        description: 'Ciclos de pagamento, valores brutos/líquidos e notas fiscais PJ pendentes.',
+        example: 'Qual o status da folha atual e quantas NFs PJ estão pendentes?',
+    },
+    {
+        icon: Users,
+        color: '#0096ca',
+        bg: 'rgba(0,150,202,0.08)',
+        border: 'rgba(0,150,202,0.2)',
+        title: 'Estatísticas de Colaboradores',
+        description: 'Headcount por tipo de contrato, departamento, admissões e desligamentos recentes.',
+        example: 'Quantos colaboradores CLT, PJ e estagiários temos atualmente?',
+    },
+];
+
+// ── Capabilities: General knowledge (labor law) ─────────────────────────────
+const generalCapabilities = [
     {
         icon: Gift,
         color: '#10b981',
@@ -107,12 +136,16 @@ const capabilities = [
 ];
 
 // ── Suggestion chips (shown when chat is empty) ───────────────────────────────
-const suggestions = [
+const systemSuggestions = [
     'Quem está elegível para férias agora?',
     'Qual o status da folha atual?',
+    'Quantos colaboradores CLT temos?',
+];
+
+const generalSuggestions = [
     'Como funciona o DSR sobre comissões?',
     'Explique o cálculo do 13° salário',
-    'Qual o último dissídio aplicado?',
+    'Quais as faixas de INSS 2025?',
 ];
 
 // ── Chat logic ────────────────────────────────────────────────────────────────
@@ -145,7 +178,7 @@ async function sendMessage(text?: string) {
                 'Content-Type': 'application/json',
                 'X-XSRF-TOKEN': getCsrfToken(),
             },
-            body: JSON.stringify({ question }),
+            body: JSON.stringify({ question, conversation_id: conversationId.value }),
         });
 
         if (!response.ok) {
@@ -153,6 +186,7 @@ async function sendMessage(text?: string) {
         }
 
         const data = await response.json();
+        conversationId.value = data.conversation_id ?? conversationId.value;
         messages.value.push({
             id: ++messageIdCounter,
             role: 'assistant',
@@ -227,11 +261,31 @@ const isEmpty = computed(() => messages.value.length === 0 && !loading.value);
                 <!-- Capability cards -->
                 <div class="flex-1 overflow-y-auto p-4">
                     <p class="mb-3 text-xs font-semibold uppercase tracking-widest text-muted-foreground">
-                        O que eu posso responder
+                        Consultas ao Sistema Eva
                     </p>
                     <div class="flex flex-col gap-2">
                         <button
-                            v-for="cap in capabilities"
+                            v-for="cap in systemCapabilities"
+                            :key="cap.title"
+                            class="group w-full rounded-xl border p-3 text-left transition-all hover:opacity-90"
+                            :style="{ background: cap.bg, borderColor: cap.border }"
+                            @click="sendMessage(cap.example)"
+                        >
+                            <div class="flex items-center gap-2">
+                                <component :is="cap.icon" class="size-4 shrink-0" :style="{ color: cap.color }" />
+                                <span class="text-sm font-medium text-foreground">{{ cap.title }}</span>
+                                <ChevronRight class="ml-auto size-3 text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100" />
+                            </div>
+                            <p class="mt-1 text-xs text-muted-foreground">{{ cap.description }}</p>
+                        </button>
+                    </div>
+
+                    <p class="mb-3 mt-5 text-xs font-semibold uppercase tracking-widest text-muted-foreground">
+                        Conhecimento Trabalhista
+                    </p>
+                    <div class="flex flex-col gap-2">
+                        <button
+                            v-for="cap in generalCapabilities"
                             :key="cap.title"
                             class="group w-full rounded-xl border p-3 text-left transition-all hover:opacity-90"
                             :style="{ background: cap.bg, borderColor: cap.border }"
@@ -262,6 +316,21 @@ const isEmpty = computed(() => messages.value.length === 0 && !loading.value);
             <!-- ── Right panel: chat ──────────────────────────────────────── -->
             <div class="flex min-h-0 flex-col overflow-hidden">
 
+                <!-- Chat header with "Nova conversa" -->
+                <div v-if="messages.length > 0" class="flex items-center justify-between border-b border-border/30 px-6 py-3">
+                    <span class="text-xs text-muted-foreground">
+                        {{ messages.length }} {{ messages.length === 1 ? 'mensagem' : 'mensagens' }}
+                    </span>
+                    <button
+                        class="flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-xs transition-all hover:opacity-80"
+                        style="background:rgba(0,150,202,0.06);border-color:rgba(0,150,202,0.2);color:#0096ca;"
+                        @click="startNewConversation"
+                    >
+                        <Sparkles class="size-3" />
+                        Nova conversa
+                    </button>
+                </div>
+
                 <!-- Chat messages -->
                 <div
                     ref="chatContainer"
@@ -283,29 +352,64 @@ const isEmpty = computed(() => messages.value.length === 0 && !loading.value);
                             </p>
                         </div>
                         <!-- Suggestion chips -->
-                        <div class="flex flex-wrap justify-center gap-2">
-                            <button
-                                v-for="s in suggestions"
-                                :key="s"
-                                class="rounded-full border px-3 py-1.5 text-xs transition-all hover:opacity-80"
-                                style="background:rgba(0,150,202,0.06);border-color:rgba(0,150,202,0.2);color:#0096ca;"
-                                @click="sendMessage(s)"
-                            >
-                                {{ s }}
-                            </button>
+                        <div class="flex w-full max-w-lg flex-col gap-3">
+                            <div>
+                                <p class="mb-2 text-center text-xs font-medium text-muted-foreground">Consultas ao Sistema</p>
+                                <div class="flex flex-wrap justify-center gap-2">
+                                    <button
+                                        v-for="s in systemSuggestions"
+                                        :key="s"
+                                        class="rounded-full border px-3 py-1.5 text-xs transition-all hover:opacity-80"
+                                        style="background:rgba(0,150,202,0.06);border-color:rgba(0,150,202,0.2);color:#0096ca;"
+                                        @click="sendMessage(s)"
+                                    >
+                                        {{ s }}
+                                    </button>
+                                </div>
+                            </div>
+                            <div>
+                                <p class="mb-2 text-center text-xs font-medium text-muted-foreground">Conhecimento Trabalhista</p>
+                                <div class="flex flex-wrap justify-center gap-2">
+                                    <button
+                                        v-for="s in generalSuggestions"
+                                        :key="s"
+                                        class="rounded-full border px-3 py-1.5 text-xs transition-all hover:opacity-80"
+                                        style="background:rgba(139,92,246,0.06);border-color:rgba(139,92,246,0.2);color:#8b5cf6;"
+                                        @click="sendMessage(s)"
+                                    >
+                                        {{ s }}
+                                    </button>
+                                </div>
+                            </div>
                         </div>
                         <!-- Mobile capabilities -->
-                        <div class="mt-2 grid w-full max-w-lg grid-cols-2 gap-2 lg:hidden">
-                            <button
-                                v-for="cap in capabilities"
-                                :key="cap.title"
-                                class="rounded-xl border p-3 text-left text-xs transition-all hover:opacity-80"
-                                :style="{ background: cap.bg, borderColor: cap.border }"
-                                @click="sendMessage(cap.example)"
-                            >
-                                <component :is="cap.icon" class="mb-1 size-4" :style="{ color: cap.color }" />
-                                <div class="font-medium text-foreground">{{ cap.title }}</div>
-                            </button>
+                        <div class="mt-2 w-full max-w-lg lg:hidden">
+                            <p class="mb-2 text-xs font-medium text-muted-foreground">Consultas ao Sistema</p>
+                            <div class="grid grid-cols-2 gap-2">
+                                <button
+                                    v-for="cap in systemCapabilities"
+                                    :key="cap.title"
+                                    class="rounded-xl border p-3 text-left text-xs transition-all hover:opacity-80"
+                                    :style="{ background: cap.bg, borderColor: cap.border }"
+                                    @click="sendMessage(cap.example)"
+                                >
+                                    <component :is="cap.icon" class="mb-1 size-4" :style="{ color: cap.color }" />
+                                    <div class="font-medium text-foreground">{{ cap.title }}</div>
+                                </button>
+                            </div>
+                            <p class="mb-2 mt-3 text-xs font-medium text-muted-foreground">Conhecimento Trabalhista</p>
+                            <div class="grid grid-cols-2 gap-2">
+                                <button
+                                    v-for="cap in generalCapabilities"
+                                    :key="cap.title"
+                                    class="rounded-xl border p-3 text-left text-xs transition-all hover:opacity-80"
+                                    :style="{ background: cap.bg, borderColor: cap.border }"
+                                    @click="sendMessage(cap.example)"
+                                >
+                                    <component :is="cap.icon" class="mb-1 size-4" :style="{ color: cap.color }" />
+                                    <div class="font-medium text-foreground">{{ cap.title }}</div>
+                                </button>
+                            </div>
                         </div>
                     </div>
 
