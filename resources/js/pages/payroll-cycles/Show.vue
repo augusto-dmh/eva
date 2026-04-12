@@ -3,6 +3,7 @@ import { router } from '@inertiajs/vue3';
 import { Head } from '@inertiajs/vue3';
 import { ref } from 'vue';
 import CycleStatusStepper from '@/components/CycleStatusStepper.vue';
+import DiscrepancyAnalysisPanel from '@/components/DiscrepancyAnalysisPanel.vue';
 import PayrollEntryRow from '@/components/PayrollEntryRow.vue';
 import { Button } from '@/components/ui/button';
 import type { PayrollCycle, PayrollCycleStatus } from '@/types/payroll';
@@ -258,6 +259,9 @@ function formatDate(value: string | null) {
                 </tbody>
             </table>
         </div>
+
+        <!-- AI Discrepancy Analysis -->
+        <DiscrepancyAnalysisPanel :cycle-id="cycle.id" />
 
         <!-- PJ Invoices section -->
         <div v-if="pjInvoices.length > 0" class="flex flex-col gap-3">

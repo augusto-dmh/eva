@@ -4,6 +4,7 @@ import {
     CalendarDays,
     FileText,
     Gift,
+    HandCoins,
     LayoutDashboard,
     Receipt,
     TrendingUp,
@@ -70,6 +71,11 @@ const adminNavItems: NavItem[] = [
         title: 'PLR',
         href: '/plr',
         icon: Trophy,
+    },
+    {
+        title: 'Contribuição Assistencial',
+        href: '/union/opposition',
+        icon: HandCoins,
     },
 ];
 
