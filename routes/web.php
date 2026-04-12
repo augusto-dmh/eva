@@ -7,8 +7,10 @@ use App\Http\Controllers\DissidioController;
 use App\Http\Controllers\PayrollCycleController;
 use App\Http\Controllers\PayrollEntryController;
 use App\Http\Controllers\PjInvoiceController;
+use App\Http\Controllers\PlrController;
 use App\Http\Controllers\SelfServiceController;
 use App\Http\Controllers\TerminationController;
+use App\Http\Controllers\ThirteenthSalaryController;
 use App\Http\Controllers\VacationBatchController;
 use Illuminate\Support\Facades\Route;
 use Laravel\Fortify\Features;
@@ -87,6 +89,20 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/dissidio-rounds/{dissidioRound}', [DissidioController::class, 'show'])->name('dissidio-rounds.show')->middleware('can:admin');
     Route::post('/dissidio-rounds/{dissidioRound}/simulate', [DissidioController::class, 'simulate'])->name('dissidio-rounds.simulate')->middleware('can:admin');
     Route::post('/dissidio-rounds/{dissidioRound}/apply', [DissidioController::class, 'apply'])->name('dissidio-rounds.apply')->middleware('can:admin');
+
+    // 13th Salary
+    Route::get('/thirteenth-salary', [ThirteenthSalaryController::class, 'index'])->name('thirteenth-salary.index')->middleware('can:admin');
+    Route::get('/thirteenth-salary/create', [ThirteenthSalaryController::class, 'create'])->name('thirteenth-salary.create')->middleware('can:admin');
+    Route::post('/thirteenth-salary', [ThirteenthSalaryController::class, 'store'])->name('thirteenth-salary.store')->middleware('can:admin');
+    Route::get('/thirteenth-salary/{thirteenthSalaryRound}', [ThirteenthSalaryController::class, 'show'])->name('thirteenth-salary.show')->middleware('can:admin');
+    Route::post('/thirteenth-salary/{thirteenthSalaryRound}/simulate', [ThirteenthSalaryController::class, 'simulate'])->name('thirteenth-salary.simulate')->middleware('can:admin');
+
+    // PLR
+    Route::get('/plr', [PlrController::class, 'index'])->name('plr.index')->middleware('can:admin');
+    Route::get('/plr/create', [PlrController::class, 'create'])->name('plr.create')->middleware('can:admin');
+    Route::post('/plr', [PlrController::class, 'store'])->name('plr.store')->middleware('can:admin');
+    Route::get('/plr/{plrRound}', [PlrController::class, 'show'])->name('plr.show')->middleware('can:admin');
+    Route::post('/plr/{plrRound}/simulate', [PlrController::class, 'simulate'])->name('plr.simulate')->middleware('can:admin');
 
     // Collaborator self-service
     Route::get('self-service/profile', [SelfServiceController::class, 'profile'])
