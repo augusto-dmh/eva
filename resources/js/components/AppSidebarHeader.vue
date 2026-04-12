@@ -10,11 +10,7 @@ withDefaults(defineProps<{ breadcrumbs?: BreadcrumbItem[] }>(), {
 
 <template>
     <header
-        class="flex h-14 shrink-0 items-center gap-3 border-b px-6 backdrop-blur-md transition-all ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-12 md:px-4"
-        style="
-            background: var(--nav-bg, rgba(2, 6, 23, 0.6));
-            border-color: var(--border);
-        "
+        class="flex h-14 shrink-0 items-center gap-3 border-b border-border bg-white px-6 transition-all ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-12 md:px-4"
     >
         <SidebarTrigger
             class="-ml-1 text-muted-foreground hover:text-foreground"
