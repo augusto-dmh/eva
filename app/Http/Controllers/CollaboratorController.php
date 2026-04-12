@@ -9,12 +9,15 @@ use App\Http\Requests\Collaborator\StoreCollaboratorRequest;
 use App\Http\Requests\Collaborator\UpdateCollaboratorRequest;
 use App\Models\Collaborator;
 use App\Models\LegalEntity;
+use App\Services\AdmissionChecklistService;
 use Illuminate\Http\RedirectResponse;
 use Inertia\Inertia;
 use Inertia\Response;
 
 class CollaboratorController extends Controller
 {
+    public function __construct(private AdmissionChecklistService $checklistService) {}
+
     public function index(): Response
     {
         $query = Collaborator::with('legalEntity');
@@ -60,7 +63,8 @@ class CollaboratorController extends Controller
 
     public function store(StoreCollaboratorRequest $request): RedirectResponse
     {
-        Collaborator::create($request->validated());
+        $collaborator = Collaborator::create($request->validated());
+        $this->checklistService->createForCollaborator($collaborator);
 
         return redirect()->route('collaborators.index')
             ->with('success', 'Colaborador cadastrado com sucesso.');
@@ -70,6 +74,7 @@ class CollaboratorController extends Controller
     {
         return Inertia::render('collaborators/Show', [
             'collaborator' => $collaborator->load('legalEntity'),
+            'checklist' => $collaborator->admissionChecklist()->with('items')->first(),
         ]);
     }
 

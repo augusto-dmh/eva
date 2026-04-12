@@ -1,5 +1,7 @@
 <?php
 
+use App\Http\Controllers\AdmissionChecklistController;
+use App\Http\Controllers\AdmissionChecklistItemController;
 use App\Http\Controllers\CollaboratorController;
 use App\Http\Controllers\PayrollCycleController;
 use App\Http\Controllers\PayrollEntryController;
@@ -52,6 +54,14 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // Admin vacation batches
     Route::resource('vacation-batches', VacationBatchController::class)
         ->only(['index', 'store', 'show', 'update'])
+        ->middleware('can:admin');
+
+    // Admission checklists
+    Route::get('/admission-checklists/{admissionChecklist}', [AdmissionChecklistController::class, 'show'])
+        ->name('admission-checklists.show')
+        ->middleware('can:admin');
+    Route::put('/admission-checklist-items/{admissionChecklistItem}', [AdmissionChecklistItemController::class, 'update'])
+        ->name('admission-checklist-items.update')
         ->middleware('can:admin');
 
     // Collaborator self-service
