@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { Link, usePage } from '@inertiajs/vue3';
-import { LayoutDashboard, User, Users } from 'lucide-vue-next';
+import { LayoutDashboard, Receipt, User, Users } from 'lucide-vue-next';
 import { computed } from 'vue';
 import NavFooter from '@/components/NavFooter.vue';
 import NavMain from '@/components/NavMain.vue';
@@ -16,6 +16,7 @@ import {
 } from '@/components/ui/sidebar';
 import { dashboard } from '@/routes';
 import { index as collaboratorsIndex } from '@/routes/collaborators';
+import { index as payrollCyclesIndex } from '@/routes/payroll-cycles';
 import { profile as selfServiceProfile } from '@/routes/self-service';
 import type { NavItem } from '@/types';
 
@@ -32,6 +33,11 @@ const adminNavItems: NavItem[] = [
         title: 'Colaboradores',
         href: collaboratorsIndex(),
         icon: Users,
+    },
+    {
+        title: 'Folha de Pagamento',
+        href: payrollCyclesIndex(),
+        icon: Receipt,
     },
 ];
 
