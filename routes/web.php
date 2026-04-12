@@ -2,9 +2,12 @@
 
 use App\Http\Controllers\AdmissionChecklistController;
 use App\Http\Controllers\AdmissionChecklistItemController;
+use App\Http\Controllers\AssistiveConventionController;
 use App\Http\Controllers\CollaboratorController;
 use App\Http\Controllers\DissidioController;
+use App\Http\Controllers\DpAssistantController;
 use App\Http\Controllers\PayrollCycleController;
+use App\Http\Controllers\PayrollDiscrepancyController;
 use App\Http\Controllers\PayrollEntryController;
 use App\Http\Controllers\PjInvoiceController;
 use App\Http\Controllers\PlrController;
@@ -103,6 +106,16 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/plr', [PlrController::class, 'store'])->name('plr.store')->middleware('can:admin');
     Route::get('/plr/{plrRound}', [PlrController::class, 'show'])->name('plr.show')->middleware('can:admin');
     Route::post('/plr/{plrRound}/simulate', [PlrController::class, 'simulate'])->name('plr.simulate')->middleware('can:admin');
+
+    // Union Obligations
+    Route::get('/union/opposition', [AssistiveConventionController::class, 'index'])->name('union.opposition.index')->middleware('can:admin');
+    Route::post('/union/opposition', [AssistiveConventionController::class, 'store'])->name('union.opposition.store')->middleware('can:admin');
+
+    // DP Assistant (AJAX)
+    Route::post('/dp-assistant/ask', [DpAssistantController::class, 'ask'])->name('dp-assistant.ask');
+
+    // Payroll Discrepancy Analysis (AJAX)
+    Route::post('/payroll-cycles/{payrollCycle}/discrepancy-analysis', [PayrollDiscrepancyController::class, 'analyze'])->name('payroll-cycles.discrepancy-analysis')->middleware('can:admin');
 
     // Collaborator self-service
     Route::get('self-service/profile', [SelfServiceController::class, 'profile'])

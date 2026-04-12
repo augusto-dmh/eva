@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { Head } from '@inertiajs/vue3';
+import DpAssistantWidget from '@/components/DpAssistantWidget.vue';
 import PlaceholderPattern from '@/components/PlaceholderPattern.vue';
 import { dashboard } from '@/routes';
 
@@ -43,5 +44,6 @@ defineOptions({
         >
             <PlaceholderPattern />
         </div>
+        <DpAssistantWidget />
     </div>
 </template>
