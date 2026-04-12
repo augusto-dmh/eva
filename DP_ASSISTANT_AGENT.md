@@ -271,16 +271,45 @@ O Laravel AI SDK persiste automaticamente as mensagens no banco de dados via `Re
 
 ---
 
+## Gerenciamento de conversas
+
+O módulo suporta navegação, exclusão e favoritos de conversas anteriores.
+
+### Endpoints disponíveis
+
+| Método | Rota | Descrição |
+|--------|------|-----------|
+| `GET` | `/dp-assistant/conversations` | Lista todas as conversas do usuário (favoritas primeiro) |
+| `GET` | `/dp-assistant/conversations/{id}` | Carrega mensagens de uma conversa |
+| `DELETE` | `/dp-assistant/conversations/{id}` | Exclui conversa e todas as mensagens |
+| `PATCH` | `/dp-assistant/conversations/{id}/favorite` | Alterna favorito on/off |
+
+### Interface
+
+O painel esquerdo tem duas abas:
+- **Capacidades** — cards com exemplos de perguntas (consultas ao sistema + conhecimento trabalhista)
+- **Conversas** — histórico de conversas com ações:
+  - Clique para carregar e continuar a conversa
+  - Estrela para marcar/desmarcar como favorita (favoritas aparecem primeiro)
+  - Lixeira para excluir permanentemente
+  - Botão "Nova" no cabeçalho para iniciar conversa limpa
+
+### Download de dados como CSV
+
+Respostas que contêm dados estruturados (tabelas markdown ou listas com separador `|`) exibem um botão de download CSV ao lado do botão de copiar. O nome do arquivo é derivado da pergunta do usuário (ex: `eva-quem-esta-elegivel-para-ferias-2026-04-12.csv`).
+
+---
+
 ## Arquivos relevantes
 
 | Arquivo | Descrição |
 |---------|-----------|
-| `app/Ai/Agents/DpAssistantAgent.php` | Agente principal — instruções + registro de ferramentas |
+| `app/Ai/Agents/DpAssistantAgent.php` | Agente principal — instruções, ferramentas, conversa |
 | `app/Ai/Tools/VacationEligibilityTool.php` | Ferramenta de elegibilidade de férias |
 | `app/Ai/Tools/PayrollStatusTool.php` | Ferramenta de status da folha |
 | `app/Ai/Tools/CollaboratorStatsTool.php` | Ferramenta de estatísticas de colaboradores |
 | `app/Ai/Tools/DissidioInfoTool.php` | Ferramenta de informações de dissídio |
 | `app/Ai/Tools/AnnualObligationsTool.php` | Ferramenta de obrigações anuais (13°, PLR) |
-| `app/Http/Controllers/DpAssistantController.php` | Controller HTTP (página + endpoint AJAX) |
-| `resources/js/pages/dp-assistant/Index.vue` | Interface de chat com renderização Markdown |
+| `app/Http/Controllers/DpAssistantController.php` | Controller HTTP — página, chat, CRUD de conversas |
+| `resources/js/pages/dp-assistant/Index.vue` | Interface de chat com histórico, favoritos e CSV |
 | `config/ai.php` | Configuração multi-provedor |
