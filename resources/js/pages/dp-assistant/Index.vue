@@ -260,6 +260,30 @@ function hasDownloadableData(text: string): boolean {
     return extractCsvFromText(text) !== null;
 }
 
+function slugify(text: string): string {
+    return text
+        .normalize('NFD').replace(/[\u0300-\u036f]/g, '') // strip accents
+        .toLowerCase()
+        .replace(/[?!.,;:'"()]/g, '')       // remove punctuation
+        .replace(/\s+/g, '-')               // spaces → hyphens
+        .replace(/-+/g, '-')                // collapse repeated hyphens
+        .replace(/^-|-$/g, '')              // trim leading/trailing hyphens
+        .slice(0, 50);                      // cap length
+}
+
+function getDownloadFilename(msg: Message): string {
+    const date = new Date().toISOString().slice(0, 10);
+    // Find the user question that preceded this assistant response
+    const idx = messages.value.findIndex(m => m.id === msg.id);
+    if (idx > 0) {
+        const prevMsg = messages.value[idx - 1];
+        if (prevMsg.role === 'user') {
+            return `eva-${slugify(prevMsg.text)}-${date}.csv`;
+        }
+    }
+    return `eva-dp-assistant-${date}.csv`;
+}
+
 function downloadCsv(msg: Message) {
     const csv = extractCsvFromText(msg.text);
     if (!csv) return;
@@ -269,7 +293,7 @@ function downloadCsv(msg: Message) {
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `eva-dp-assistant-${new Date().toISOString().slice(0, 10)}.csv`;
+    a.download = getDownloadFilename(msg);
     a.click();
     URL.revokeObjectURL(url);
 }
