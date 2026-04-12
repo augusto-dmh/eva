@@ -104,9 +104,6 @@ function statusVariant(status: PayrollEntryStatus) {
                 {{ entry.tipo_contrato.toUpperCase() }}
             </Badge>
         </td>
-        <td class="px-4 py-3 text-muted-foreground">
-            {{ entry.legalEntity?.apelido ?? '—' }}
-        </td>
         <td class="px-4 py-3 text-right">
             {{ formatCurrency(entry.salario_bruto) }}
         </td>
@@ -127,7 +124,7 @@ function statusVariant(status: PayrollEntryStatus) {
 
     <!-- Inline edit row -->
     <tr v-if="editing" class="bg-muted/10">
-        <td colspan="7" class="px-4 py-4">
+        <td colspan="6" class="px-4 py-4">
             <form
                 class="grid grid-cols-2 gap-3 md:grid-cols-4"
                 @submit.prevent="submitEdit"
