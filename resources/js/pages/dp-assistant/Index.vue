@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { Head, Link } from '@inertiajs/vue3';
-import { ref, nextTick, computed, onMounted } from 'vue';
+import { ref, nextTick, computed, onMounted, onUnmounted } from 'vue';
 import { marked } from 'marked';
 import {
     ArrowLeft,
@@ -199,6 +199,13 @@ function formatConversationDate(dateStr: string): string {
 
 onMounted(() => {
     fetchConversations();
+    const inset = document.querySelector('[data-slot="sidebar-inset"]') as HTMLElement | null;
+    if (inset) inset.style.overflow = 'hidden';
+});
+
+onUnmounted(() => {
+    const inset = document.querySelector('[data-slot="sidebar-inset"]') as HTMLElement | null;
+    if (inset) inset.style.overflow = '';
 });
 
 // ── Capabilities: System-specific (tool-backed) ─────────────────────────────
@@ -860,34 +867,27 @@ const isEmpty = computed(() => messages.value.length === 0 && !loading.value);
                 </div>
 
                 <!-- Input bar -->
-                <div class="shrink-0 border-t border-border/30 p-4">
-                    <div class="mx-auto max-w-3xl">
-                        <div
-                            class="flex items-end gap-3 rounded-2xl border p-3 transition-colors focus-within:border-[rgba(0,150,202,0.4)]"
-                            style="background:var(--card);border-color:rgba(0,150,202,0.15);"
+                <div class="shrink-0 px-6 pb-6">
+                    <div class="mx-auto flex max-w-3xl items-center rounded-full border px-4 py-2.5 transition-colors focus-within:border-[rgba(0,150,202,0.4)]"
+                         style="background:var(--card);border-color:rgba(0,150,202,0.15);">
+                        <textarea
+                            v-model="inputText"
+                            rows="1"
+                            placeholder="Pergunte alguma coisa"
+                            class="flex-1 resize-none bg-transparent text-sm leading-6 text-foreground placeholder-muted-foreground outline-none"
+                            style="max-height:120px;overflow-y:auto;"
+                            @keydown.enter.exact.prevent="sendMessage()"
+                            @keydown.enter.shift.exact="inputText += '\n'"
+                            @input="($event.target as HTMLTextAreaElement).style.height = 'auto'; ($event.target as HTMLTextAreaElement).style.height = ($event.target as HTMLTextAreaElement).scrollHeight + 'px'"
+                        />
+                        <button
+                            :disabled="!inputText.trim() || loading"
+                            class="ml-3 flex size-8 shrink-0 items-center justify-center rounded-full transition-all disabled:opacity-30"
+                            :style="inputText.trim() && !loading ? 'background:linear-gradient(135deg,#0096ca,#004d80);' : 'background:rgba(0,150,202,0.15);'"
+                            @click="sendMessage()"
                         >
-                            <textarea
-                                v-model="inputText"
-                                rows="1"
-                                placeholder="Pergunte sobre folha, férias, PLR, 13°, dissídio..."
-                                class="flex-1 resize-none bg-transparent text-sm text-foreground placeholder-muted-foreground outline-none"
-                                style="max-height:120px;overflow-y:auto;"
-                                @keydown.enter.exact.prevent="sendMessage()"
-                                @keydown.enter.shift.exact="inputText += '\n'"
-                                @input="($event.target as HTMLTextAreaElement).style.height = 'auto'; ($event.target as HTMLTextAreaElement).style.height = ($event.target as HTMLTextAreaElement).scrollHeight + 'px'"
-                            />
-                            <button
-                                :disabled="!inputText.trim() || loading"
-                                class="flex size-9 shrink-0 items-center justify-center rounded-xl transition-all disabled:opacity-40"
-                                :style="inputText.trim() && !loading ? 'background:linear-gradient(135deg,#0096ca,#004d80);' : 'background:rgba(0,150,202,0.15);'"
-                                @click="sendMessage()"
-                            >
-                                <Send class="size-4" :style="inputText.trim() && !loading ? 'color:#fff;' : 'color:#0096ca;'" />
-                            </button>
-                        </div>
-                        <p class="mt-2 text-center text-xs text-muted-foreground">
-                            Enter para enviar · Shift+Enter para nova linha
-                        </p>
+                            <Send class="size-4" :style="inputText.trim() && !loading ? 'color:#fff;' : 'color:#0096ca;'" />
+                        </button>
                     </div>
                 </div>
             </div>
