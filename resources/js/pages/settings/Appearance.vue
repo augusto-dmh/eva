@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { Head } from '@inertiajs/vue3';
-import AppearanceTabs from '@/components/AppearanceTabs.vue';
 import Heading from '@/components/Heading.vue';
 import { edit } from '@/routes/appearance';
 
@@ -24,9 +23,9 @@ defineOptions({
     <div class="space-y-6">
         <Heading
             variant="small"
-            title="Appearance settings"
-            description="Update your account's appearance settings"
+            title="Aparência"
+            description="Esta aplicação utiliza o modo claro como padrão."
         />
-        <AppearanceTabs />
+        <p class="text-sm text-muted-foreground">Nenhuma configuração de aparência disponível.</p>
     </div>
 </template>

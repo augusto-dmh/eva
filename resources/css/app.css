@@ -4,7 +4,7 @@
 @source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
 @source '../../storage/framework/views/*.php';
 
-@custom-variant dark (&:is(.dark *));
+/* Light-only mode — no dark variant */
 
 @theme inline {
     --font-sans:
@@ -80,38 +80,7 @@
     --sidebar: hsl(222 84% 5%);
 }
 
-/* Dark theme */
-.dark {
-    --background: hsl(222 84% 5%);
-    --foreground: hsl(210 40% 98%);
-    --card: hsl(215 28% 9%);
-    --card-foreground: hsl(210 40% 98%);
-    --popover: hsl(215 28% 9%);
-    --popover-foreground: hsl(210 40% 98%);
-    --primary: hsl(217 91% 60%);
-    --primary-foreground: hsl(0 0% 100%);
-    --secondary: hsl(215 28% 17%);
-    --secondary-foreground: hsl(210 40% 98%);
-    --muted: hsl(215 28% 11%);
-    --muted-foreground: hsl(215 20% 65%);
-    --accent: hsl(239 84% 67%);
-    --accent-foreground: hsl(0 0% 100%);
-    --destructive: hsl(0 84% 60%);
-    --destructive-foreground: hsl(0 0% 100%);
-    --border: hsl(217 91% 60% / 0.12);
-    --input: hsl(215 28% 14%);
-    --ring: hsl(217 91% 60%);
-
-    --sidebar-background: hsl(222 84% 3%);
-    --sidebar-foreground: hsl(210 40% 98%);
-    --sidebar-primary: hsl(217 91% 60%);
-    --sidebar-primary-foreground: hsl(0 0% 100%);
-    --sidebar-accent: hsl(217 91% 60% / 0.08);
-    --sidebar-accent-foreground: hsl(210 40% 98%);
-    --sidebar-border: hsl(217 91% 60% / 0.12);
-    --sidebar-ring: hsl(217 91% 60%);
-    --sidebar: hsl(222 84% 3%);
-}
+/* No dark theme — light only */
 
 @layer base {
     *,
@@ -132,56 +101,22 @@
     }
 }
 
-/* Grid background pattern */
-.app-grid-bg::before {
-    content: '';
-    position: fixed;
-    inset: 0;
-    background-image:
-        linear-gradient(rgba(59, 130, 246, 0.06) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(59, 130, 246, 0.06) 1px, transparent 1px);
-    background-size: 60px 60px;
-    mask-image: radial-gradient(
-        circle at center,
-        rgba(0, 0, 0, 0.6) 0%,
-        rgba(0, 0, 0, 0.2) 70%,
-        transparent 94%
-    );
-    pointer-events: none;
-    z-index: 0;
-}
-
-/* Glassmorphic card utility */
+/* Clean card utility */
 .glass-card {
     background: var(--card);
-    backdrop-filter: blur(24px);
-    -webkit-backdrop-filter: blur(24px);
     border: 1px solid var(--border);
     border-radius: var(--radius-lg);
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+    transition: all 0.2s ease;
 }
 
 .glass-card:hover {
-    border-color: hsl(217 91% 60% / 0.3);
-    transform: translateY(-2px);
-    box-shadow: 0 20px 40px -12px hsl(217 91% 60% / 0.15);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
 }
 
-/* Ambient glow */
-.glow-primary {
-    position: fixed;
-    width: 600px;
-    height: 600px;
-    border-radius: 50%;
-    background: radial-gradient(
-        circle,
-        rgba(59, 130, 246, 0.12) 0%,
-        transparent 70%
-    );
-    filter: blur(80px);
-    pointer-events: none;
-    z-index: 0;
-}
+/* Grid and glow effects hidden in light mode */
+.app-grid-bg::before { display: none; }
+.glow-primary { display: none; }
 
 /* Display font utility */
 .font-display {
@@ -195,7 +130,7 @@
 
 /* Gradient text */
 .gradient-text {
-    background: linear-gradient(135deg, #ffffff 0%, #3b82f6 100%);
+    background: linear-gradient(135deg, #1e3a5f 0%, #2563eb 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
