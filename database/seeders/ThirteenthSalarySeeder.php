@@ -2,121 +2,99 @@
 
 namespace Database\Seeders;
 
+use App\Enums\CollaboratorStatus;
 use App\Enums\ContractType;
-use App\Enums\InstallmentStatus;
 use App\Enums\ThirteenthRoundStatus;
 use App\Models\Collaborator;
-use App\Models\ThirteenthSalaryEntry;
 use App\Models\ThirteenthSalaryRound;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\DB;
 
 class ThirteenthSalarySeeder extends Seeder
 {
     public function run(): void
     {
-        $admin = User::where('email', 'admin@clubedovalor.com.br')->firstOrFail();
+        $admin = User::where('email', 'admin@clubedovalor.com.br')->first();
 
-        $round = ThirteenthSalaryRound::create([
-            'ano_referencia' => 2025,
-            'status' => ThirteenthRoundStatus::SegundaParcelaSimulada,
-            'primeira_parcela_data_limite' => '2025-11-30',
-            'segunda_parcela_data_limite' => '2025-12-20',
-            'criado_por_id' => $admin->id,
-        ]);
-
-        $cltCollaborators = Collaborator::where('tipo_contrato', ContractType::Clt)
-            ->whereNull('data_desligamento')
+        $collaborators = Collaborator::whereIn('tipo_contrato', [ContractType::Clt, ContractType::Estagiario])
+            ->where('status', CollaboratorStatus::Ativo)
             ->get();
 
-        foreach ($cltCollaborators as $collaborator) {
-            $admissao = Carbon::parse($collaborator->data_admissao);
-            $anoInicio = Carbon::create(2025, 1, 1);
-            $anoFim = Carbon::create(2025, 12, 31);
-
-            if ($admissao->year < 2025) {
-                $mesesTrabalhados = 12;
-            } else {
-                $mesesTrabalhados = min(12, (int) $admissao->diffInMonths($anoFim) + 1);
-            }
-
-            $salarioBase = (float) $collaborator->salario_base;
-            $mediaComissoes = 0;
-            $baseCalculo = $salarioBase;
-            $valorIntegral = round($baseCalculo * ($mesesTrabalhados / 12), 2);
-            $primeiraParcela = round($valorIntegral * 0.5, 2);
-
-            $descontoInss = $this->calcularInss($valorIntegral);
-            $descontoIrrf = $this->calcularIrrf($valorIntegral - $descontoInss);
-            $segundaParcela = round($valorIntegral - $primeiraParcela - $descontoInss - $descontoIrrf, 2);
-
-            ThirteenthSalaryEntry::create([
-                'thirteenth_salary_round_id' => $round->id,
-                'collaborator_id' => $collaborator->id,
-                'meses_trabalhados' => $mesesTrabalhados,
-                'salario_base' => $salarioBase,
-                'media_comissoes' => $mediaComissoes,
-                'base_calculo' => $baseCalculo,
-                'valor_integral' => $valorIntegral,
-                'primeira_parcela_valor' => $primeiraParcela,
-                'segunda_parcela_valor' => $segundaParcela,
-                'desconto_inss' => $descontoInss,
-                'desconto_irrf' => $descontoIrrf,
-                'primeira_parcela_status' => InstallmentStatus::Simulado,
-                'segunda_parcela_status' => InstallmentStatus::Simulado,
-            ]);
-        }
-    }
-
-    private function calcularInss(float $base): float
-    {
-        // 2025 progressive INSS table
-        $faixas = [
-            ['limite' => 1518.00, 'aliquota' => 0.075],
-            ['limite' => 2793.88, 'aliquota' => 0.09],
-            ['limite' => 4190.83, 'aliquota' => 0.12],
-            ['limite' => 8157.41, 'aliquota' => 0.14],
+        $rounds = [
+            [
+                'ano_referencia'               => 2024,
+                'status'                       => ThirteenthRoundStatus::Concluido,
+                'primeira_parcela_data_limite' => '2024-11-30',
+                'segunda_parcela_data_limite'  => '2024-12-20',
+                'observacoes'                  => '13º salário 2024 concluído.',
+                'entry_status'                 => 'pago',
+            ],
+            [
+                'ano_referencia'               => 2025,
+                'status'                       => ThirteenthRoundStatus::Concluido,
+                'primeira_parcela_data_limite' => '2025-11-30',
+                'segunda_parcela_data_limite'  => '2025-12-20',
+                'observacoes'                  => '13º salário 2025 concluído.',
+                'entry_status'                 => 'pago',
+            ],
+            [
+                'ano_referencia'               => 2026,
+                'status'                       => ThirteenthRoundStatus::Aberto,
+                'primeira_parcela_data_limite' => '2026-11-30',
+                'segunda_parcela_data_limite'  => '2026-12-20',
+                'observacoes'                  => null,
+                'entry_status'                 => 'pendente',
+            ],
         ];
 
-        $teto = 8157.41;
-        $baseCalculo = min($base, $teto);
-        $inss = 0;
-        $anterior = 0;
+        $now = now();
 
-        foreach ($faixas as $faixa) {
-            if ($baseCalculo <= $faixa['limite']) {
-                $inss += ($baseCalculo - $anterior) * $faixa['aliquota'];
-                break;
+        foreach ($rounds as $roundData) {
+            $round = ThirteenthSalaryRound::create([
+                'ano_referencia'               => $roundData['ano_referencia'],
+                'status'                       => $roundData['status']->value,
+                'primeira_parcela_data_limite' => $roundData['primeira_parcela_data_limite'],
+                'segunda_parcela_data_limite'  => $roundData['segunda_parcela_data_limite'],
+                'observacoes'                  => $roundData['observacoes'],
+                'criado_por_id'                => $admin?->id,
+            ]);
+
+            $entries = [];
+            foreach ($collaborators as $collab) {
+                $salario = (float) ($collab->salario_base ?? 3000);
+                $admissao = Carbon::parse($collab->data_admissao);
+                $referenceEnd = Carbon::create($roundData['ano_referencia'], 12, 31);
+                $meses = min(12, max(1, (int) $admissao->diffInMonths($referenceEnd)));
+                $integral = round($salario * $meses / 12, 2);
+                $primeira = round($integral / 2, 2);
+                $segunda  = round($integral - $primeira, 2);
+                $inss     = round($integral * 0.09, 2);
+                $irrf     = $integral > 4664 ? round(($integral - 4664) * 0.15, 2) : 0;
+
+                $entries[] = [
+                    'thirteenth_salary_round_id' => $round->id,
+                    'collaborator_id'             => $collab->id,
+                    'meses_trabalhados'           => $meses,
+                    'salario_base'                => $salario,
+                    'media_comissoes'             => 0,
+                    'base_calculo'                => $integral,
+                    'valor_integral'              => $integral,
+                    'primeira_parcela_valor'      => $primeira,
+                    'segunda_parcela_valor'       => $segunda,
+                    'desconto_inss'               => $inss,
+                    'desconto_irrf'               => $irrf,
+                    'primeira_parcela_status'     => $roundData['entry_status'],
+                    'segunda_parcela_status'      => $roundData['entry_status'],
+                    'created_at'                  => $now,
+                    'updated_at'                  => $now,
+                ];
             }
-            $inss += ($faixa['limite'] - $anterior) * $faixa['aliquota'];
-            $anterior = $faixa['limite'];
 
-            if ($faixa['limite'] === 8157.41) {
-                break;
+            foreach (array_chunk($entries, 100) as $chunk) {
+                DB::table('thirteenth_salary_entries')->insert($chunk);
             }
-        }
-
-        if ($baseCalculo > 8157.41) {
-            $inss += (8157.41 - $anterior) * 0.14;
-        }
-
-        return round($inss, 2);
-    }
-
-    private function calcularIrrf(float $base): float
-    {
-        // 2025 IRRF table
-        if ($base <= 2824.00) {
-            return 0;
-        } elseif ($base <= 3751.05) {
-            return round($base * 0.075 - 211.80, 2);
-        } elseif ($base <= 4664.68) {
-            return round($base * 0.15 - 493.13, 2);
-        } elseif ($base <= 5583.56) {
-            return round($base * 0.225 - 843.13, 2);
-        } else {
-            return round($base * 0.275 - 1122.77, 2);
         }
     }
 }

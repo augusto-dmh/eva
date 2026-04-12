@@ -4,6 +4,7 @@ use App\Http\Controllers\AdmissionChecklistController;
 use App\Http\Controllers\AdmissionChecklistItemController;
 use App\Http\Controllers\AssistiveConventionController;
 use App\Http\Controllers\CollaboratorController;
+use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DissidioController;
 use App\Http\Controllers\DpAssistantController;
 use App\Http\Controllers\PayrollCycleController;
@@ -23,7 +24,7 @@ Route::inertia('/', 'Welcome', [
 ])->name('home');
 
 Route::middleware(['auth', 'verified'])->group(function () {
-    Route::inertia('dashboard', 'Dashboard')->name('dashboard');
+    Route::get('dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
     // Admin-only collaborator CRUD
     Route::resource('collaborators', CollaboratorController::class)
@@ -111,7 +112,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/union/opposition', [AssistiveConventionController::class, 'index'])->name('union.opposition.index')->middleware('can:admin');
     Route::post('/union/opposition', [AssistiveConventionController::class, 'store'])->name('union.opposition.store')->middleware('can:admin');
 
-    // DP Assistant (AJAX)
+    // DP Assistant — dedicated module + AJAX endpoint
+    Route::get('/dp-assistant', [DpAssistantController::class, 'index'])->name('dp-assistant.index');
     Route::post('/dp-assistant/ask', [DpAssistantController::class, 'ask'])->name('dp-assistant.ask');
 
     // Payroll Discrepancy Analysis (AJAX)

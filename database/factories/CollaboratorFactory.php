@@ -39,7 +39,7 @@ class CollaboratorFactory extends Factory
             'trilha_carreira' => null,
             'lider_direto' => fake('pt_BR')->optional()->name(),
             'status' => CollaboratorStatus::Ativo,
-            'data_admissao' => fake()->dateTimeBetween('-3 years', '-1 month'),
+            'data_admissao' => fake()->dateTimeBetween('-3 years', 'now'),
             'data_desligamento' => null,
             'flash_vale_alimentacao' => fake()->randomFloat(2, 200, 800),
             'flash_vale_refeicao' => fake()->randomFloat(2, 0, 500),
