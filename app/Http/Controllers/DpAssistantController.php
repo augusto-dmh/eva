@@ -101,19 +101,22 @@ class DpAssistantController extends Controller
         );
 
         return response()->stream(function () use ($streamable): void {
+            @ini_set('output_buffering', 'off');
+            @ini_set('zlib.output_compression', 'off');
+
+            while (ob_get_level()) {
+                ob_end_flush();
+            }
+
             foreach ($streamable as $event) {
                 if ($event instanceof TextDelta) {
                     echo $event->delta;
-
-                    if (ob_get_level()) {
-                        ob_flush();
-                    }
-
                     flush();
                 }
             }
         }, headers: [
             'Content-Type' => 'text/plain; charset=utf-8',
+            'Cache-Control' => 'no-cache, no-store',
             'X-Accel-Buffering' => 'no',
         ]);
     }
