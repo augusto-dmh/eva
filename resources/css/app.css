@@ -7,7 +7,9 @@
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
-    --font-sans: 'DM Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+    --font-sans:
+        'DM Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji',
+        'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
     --font-display: 'Syne', ui-sans-serif, system-ui, sans-serif;
 
     --radius-lg: var(--radius);
@@ -139,7 +141,12 @@
         linear-gradient(rgba(59, 130, 246, 0.06) 1px, transparent 1px),
         linear-gradient(90deg, rgba(59, 130, 246, 0.06) 1px, transparent 1px);
     background-size: 60px 60px;
-    mask-image: radial-gradient(circle at center, rgba(0,0,0,0.6) 0%, rgba(0,0,0,0.2) 70%, transparent 94%);
+    mask-image: radial-gradient(
+        circle at center,
+        rgba(0, 0, 0, 0.6) 0%,
+        rgba(0, 0, 0, 0.2) 70%,
+        transparent 94%
+    );
     pointer-events: none;
     z-index: 0;
 }
@@ -166,7 +173,11 @@
     width: 600px;
     height: 600px;
     border-radius: 50%;
-    background: radial-gradient(circle, rgba(59, 130, 246, 0.12) 0%, transparent 70%);
+    background: radial-gradient(
+        circle,
+        rgba(59, 130, 246, 0.12) 0%,
+        transparent 70%
+    );
     filter: blur(80px);
     pointer-events: none;
     z-index: 0;
@@ -225,8 +236,15 @@
 
 /* Pulse dot indicator */
 @keyframes pulse-dot {
-    0%, 100% { opacity: 1; transform: scale(1); }
-    50% { opacity: 0.5; transform: scale(0.85); }
+    0%,
+    100% {
+        opacity: 1;
+        transform: scale(1);
+    }
+    50% {
+        opacity: 0.5;
+        transform: scale(0.85);
+    }
 }
 
 .pulse-dot {
@@ -235,16 +253,32 @@
 
 /* Staggered fade-in for dashboard entries */
 @keyframes fade-up {
-    from { opacity: 0; transform: translateY(12px); }
-    to { opacity: 1; transform: translateY(0); }
+    from {
+        opacity: 0;
+        transform: translateY(12px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 .fade-up {
     animation: fade-up 0.4s cubic-bezier(0.4, 0, 0.2, 1) both;
 }
 
-.fade-up-1 { animation-delay: 0.05s; }
-.fade-up-2 { animation-delay: 0.1s; }
-.fade-up-3 { animation-delay: 0.15s; }
-.fade-up-4 { animation-delay: 0.2s; }
-.fade-up-5 { animation-delay: 0.25s; }
+.fade-up-1 {
+    animation-delay: 0.05s;
+}
+.fade-up-2 {
+    animation-delay: 0.1s;
+}
+.fade-up-3 {
+    animation-delay: 0.15s;
+}
+.fade-up-4 {
+    animation-delay: 0.2s;
+}
+.fade-up-5 {
+    animation-delay: 0.25s;
+}
