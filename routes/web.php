@@ -5,6 +5,7 @@ use App\Http\Controllers\PayrollCycleController;
 use App\Http\Controllers\PayrollEntryController;
 use App\Http\Controllers\PjInvoiceController;
 use App\Http\Controllers\SelfServiceController;
+use App\Http\Controllers\VacationBatchController;
 use Illuminate\Support\Facades\Route;
 use Laravel\Fortify\Features;
 
@@ -46,6 +47,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
         ->middleware('can:admin');
     Route::get('pj-invoices/{pjInvoice}/signed-url', [PjInvoiceController::class, 'show'])
         ->name('pj-invoices.show')
+        ->middleware('can:admin');
+
+    // Admin vacation batches
+    Route::resource('vacation-batches', VacationBatchController::class)
+        ->only(['index', 'store', 'show', 'update'])
         ->middleware('can:admin');
 
     // Collaborator self-service
