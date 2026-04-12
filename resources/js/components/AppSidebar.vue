@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { Link, usePage } from '@inertiajs/vue3';
 import {
+    CalendarDays,
     FileText,
     LayoutDashboard,
     Receipt,
@@ -24,6 +25,7 @@ import { dashboard } from '@/routes';
 import { index as collaboratorsIndex } from '@/routes/collaborators';
 import { index as payrollCyclesIndex } from '@/routes/payroll-cycles';
 import { profile as selfServiceProfile } from '@/routes/self-service';
+import { index as vacationBatchesIndex } from '@/routes/vacation-batches';
 import type { NavItem } from '@/types';
 
 const page = usePage();
@@ -45,6 +47,11 @@ const adminNavItems: NavItem[] = [
         title: 'Folha de Pagamento',
         href: payrollCyclesIndex(),
         icon: Receipt,
+    },
+    {
+        title: 'Férias',
+        href: vacationBatchesIndex(),
+        icon: CalendarDays,
     },
 ];
 
