@@ -5,6 +5,7 @@ import {
     FileText,
     LayoutDashboard,
     Receipt,
+    TrendingUp,
     User,
     Users,
 } from 'lucide-vue-next';
@@ -52,6 +53,11 @@ const adminNavItems: NavItem[] = [
         title: 'Férias',
         href: vacationBatchesIndex(),
         icon: CalendarDays,
+    },
+    {
+        title: 'Dissídio',
+        href: '/dissidio-rounds',
+        icon: TrendingUp,
     },
 ];
 

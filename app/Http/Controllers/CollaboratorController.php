@@ -72,9 +72,16 @@ class CollaboratorController extends Controller
 
     public function show(Collaborator $collaborator): Response
     {
+        $collaborator->load([
+            'legalEntity',
+            'admissionChecklist.items',
+            'terminationRecord',
+            'professionalHistory',
+        ]);
+
         return Inertia::render('collaborators/Show', [
-            'collaborator' => $collaborator->load('legalEntity'),
-            'checklist' => $collaborator->admissionChecklist()->with('items')->first(),
+            'collaborator' => $collaborator,
+            'checklist' => $collaborator->admissionChecklist,
             'terminationRecord' => $collaborator->terminationRecord,
         ]);
     }
