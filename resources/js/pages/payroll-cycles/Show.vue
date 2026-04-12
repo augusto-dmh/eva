@@ -232,7 +232,6 @@ function formatDate(value: string | null) {
                         <th class="px-4 py-3 text-left font-medium">
                             Contrato
                         </th>
-                        <th class="px-4 py-3 text-left font-medium">Empresa</th>
                         <th class="px-4 py-3 text-right font-medium">Bruto</th>
                         <th class="px-4 py-3 text-right font-medium">
                             Líquido
