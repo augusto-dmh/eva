@@ -25,6 +25,13 @@ class DatabaseSeeder extends Seeder
         $this->call([
             LegalEntitySeeder::class,
             CollaboratorSeeder::class,
+            SyndicateSeeder::class,
+            PayrollCycleSeeder::class,
+            VacationBatchSeeder::class,
+            DissidioSeeder::class,
+            ThirteenthSalarySeeder::class,
+            PlrSeeder::class,
+            AssistiveConventionSeeder::class,
         ]);
     }
 }
