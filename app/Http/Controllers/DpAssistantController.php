@@ -15,7 +15,9 @@ class DpAssistantController extends Controller
 {
     public function index(): Response
     {
-        return Inertia::render('dp-assistant/Index');
+        return Inertia::render('dp-assistant/Index', [
+            'streamingEnabled' => (bool) config('ai.streaming', true),
+        ]);
     }
 
     public function ask(Request $request): JsonResponse

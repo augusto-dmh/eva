@@ -28,6 +28,10 @@ import {
 } from 'lucide-vue-next';
 import { dashboard } from '@/routes';
 
+const props = defineProps<{
+    streamingEnabled: boolean;
+}>();
+
 defineOptions({
     layout: {
         breadcrumbs: [
@@ -355,7 +359,7 @@ async function fetchConversationIdFromLatest() {
 }
 
 // ── Chat logic ────────────────────────────────────────────────────────────────
-function sendMessage(text?: string) {
+async function sendMessage(text?: string) {
     const question = (text ?? inputText.value).trim();
     if (!question || isFetching.value || isStreaming.value) return;
 
@@ -371,10 +375,41 @@ function sendMessage(text?: string) {
 
     scrollToBottom();
 
-    sendStream({
-        question,
-        conversation_id: conversationId.value,
-    });
+    if (props.streamingEnabled) {
+        sendStream({ question, conversation_id: conversationId.value });
+    } else {
+        await sendNonStreaming(question);
+    }
+}
+
+async function sendNonStreaming(question: string) {
+    loading.value = true;
+    const isNewConversation = !conversationId.value;
+    try {
+        const response = await fetch('/dp-assistant/ask', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-XSRF-TOKEN': getCsrfToken(),
+            },
+            body: JSON.stringify({ question, conversation_id: conversationId.value }),
+        });
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        const data = await response.json();
+        conversationId.value = data.conversation_id ?? conversationId.value;
+        messages.value.push({
+            id: ++messageIdCounter,
+            role: 'assistant',
+            text: data.answer ?? 'Não foi possível obter uma resposta.',
+            timestamp: new Date(),
+        });
+        if (isNewConversation && data.conversation_id) fetchConversations();
+    } catch {
+        error.value = 'Erro ao conectar ao assistente. Verifique se AI_DEFAULT_PROVIDER e a chave da API estão configurados corretamente no .env.';
+    } finally {
+        loading.value = false;
+        await scrollToBottom();
+    }
 }
 
 async function scrollToBottom() {
@@ -845,7 +880,7 @@ const isEmpty = computed(() => messages.value.length === 0 && !isFetching.value 
                         </div>
 
                         <!-- Typing indicator (before streaming starts) -->
-                        <div v-else-if="isFetching" class="flex justify-start gap-3">
+                        <div v-else-if="isFetching || loading" class="flex justify-start gap-3">
                             <div class="flex size-8 shrink-0 items-center justify-center self-end rounded-xl"
                                  style="background:linear-gradient(135deg,rgba(0,150,202,0.2),rgba(0,30,98,0.3));border:1px solid rgba(0,150,202,0.25);">
                                 <Bot class="size-4" style="color:#0096ca;" />
