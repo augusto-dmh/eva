@@ -59,7 +59,7 @@ class PayrollCycleController extends Controller
 
     public function show(PayrollCycle $payrollCycle): Response
     {
-        $payrollCycle->load(['entries.collaborator', 'entries.legalEntity', 'events.triggeredBy']);
+        $payrollCycle->load(['entries.collaborator', 'entries.legalEntity', 'events.triggeredBy', 'pjInvoices.collaborator']);
 
         return Inertia::render('payroll-cycles/Show', [
             'cycle' => $payrollCycle,

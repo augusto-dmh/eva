@@ -60,4 +60,9 @@ class PayrollCycle extends Model
     {
         return $this->belongsTo(User::class, 'fechado_por_id');
     }
+
+    public function pjInvoices(): HasMany
+    {
+        return $this->hasMany(PjInvoice::class);
+    }
 }

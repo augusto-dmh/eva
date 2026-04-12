@@ -1,6 +1,12 @@
 <script setup lang="ts">
 import { Link, usePage } from '@inertiajs/vue3';
-import { LayoutDashboard, Receipt, User, Users } from 'lucide-vue-next';
+import {
+    FileText,
+    LayoutDashboard,
+    Receipt,
+    User,
+    Users,
+} from 'lucide-vue-next';
 import { computed } from 'vue';
 import NavFooter from '@/components/NavFooter.vue';
 import NavMain from '@/components/NavMain.vue';
@@ -22,6 +28,7 @@ import type { NavItem } from '@/types';
 
 const page = usePage();
 const userRole = computed(() => page.props.auth.user.role);
+const isPj = computed(() => page.props.auth.isPj);
 
 const adminNavItems: NavItem[] = [
     {
@@ -41,7 +48,7 @@ const adminNavItems: NavItem[] = [
     },
 ];
 
-const collaboratorNavItems: NavItem[] = [
+const baseCollaboratorNavItems: NavItem[] = [
     {
         title: 'Dashboard',
         href: dashboard(),
@@ -54,9 +61,23 @@ const collaboratorNavItems: NavItem[] = [
     },
 ];
 
-const mainNavItems = computed<NavItem[]>(() =>
-    userRole.value === 'admin' ? adminNavItems : collaboratorNavItems,
-);
+const mainNavItems = computed<NavItem[]>(() => {
+    if (userRole.value === 'admin') {
+        return adminNavItems;
+    }
+
+    const items = [...baseCollaboratorNavItems];
+
+    if (isPj.value) {
+        items.push({
+            title: 'Notas Fiscais',
+            href: '/self-service/invoices',
+            icon: FileText,
+        });
+    }
+
+    return items;
+});
 
 const footerNavItems: NavItem[] = [];
 </script>
