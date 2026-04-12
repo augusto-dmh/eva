@@ -807,26 +807,30 @@ const isEmpty = computed(() => messages.value.length === 0 && !isFetching.value 
 
                             <!-- Bubble -->
                             <div :class="['group relative max-w-[80%]', msg.role === 'user' ? 'items-end' : 'items-start', 'flex flex-col gap-1']">
-                                <!-- Streaming: raw text + pulsing cursor -->
-                                <p
-                                    v-if="msg.role === 'assistant' && msg.id === streamingMessageId && isStreaming"
-                                    :class="['rounded-2xl rounded-bl-sm glass-card px-4 py-3 text-sm leading-relaxed whitespace-pre-wrap']"
-                                >
-                                    <span>{{ streamData ?? '' }}</span>
-                                    <span class="ml-0.5 inline-block h-3.5 w-1.5 animate-pulse rounded-sm" style="background:#0096ca;" />
-                                </p>
-                                <!-- Final: rendered markdown -->
-                                <div
-                                    v-else
-                                    :class="[
-                                        'rounded-2xl px-4 py-3 text-sm leading-relaxed',
-                                        msg.role === 'user'
-                                            ? 'rounded-br-sm text-white'
-                                            : 'rounded-bl-sm glass-card',
-                                    ]"
-                                    :style="msg.role === 'user' ? 'background:linear-gradient(135deg,#0096ca,#004d80);' : ''"
-                                    v-html="msg.role === 'assistant' ? renderMarkdown(msg.text) : msg.text"
-                                />
+                                <Transition name="msg-fade" mode="out-in">
+                                    <!-- Streaming: raw text + pulsing cursor -->
+                                    <p
+                                        v-if="msg.role === 'assistant' && msg.id === streamingMessageId && isStreaming"
+                                        key="streaming"
+                                        :class="['rounded-2xl rounded-bl-sm glass-card px-4 py-3 text-sm leading-relaxed whitespace-pre-wrap']"
+                                    >
+                                        <span>{{ streamData ?? '' }}</span>
+                                        <span class="ml-0.5 inline-block h-3.5 w-1.5 animate-pulse rounded-sm" style="background:#0096ca;" />
+                                    </p>
+                                    <!-- Final: rendered markdown -->
+                                    <div
+                                        v-else
+                                        key="final"
+                                        :class="[
+                                            'rounded-2xl px-4 py-3 text-sm leading-relaxed',
+                                            msg.role === 'user'
+                                                ? 'rounded-br-sm text-white'
+                                                : 'rounded-bl-sm glass-card',
+                                        ]"
+                                        :style="msg.role === 'user' ? 'background:linear-gradient(135deg,#0096ca,#004d80);' : ''"
+                                        v-html="msg.role === 'assistant' ? renderMarkdown(msg.text) : msg.text"
+                                    />
+                                </Transition>
                                 <div class="flex items-center gap-2 px-1">
                                     <span class="text-xs text-muted-foreground">{{ formatTime(msg.timestamp) }}</span>
                                     <button
@@ -910,6 +914,17 @@ const isEmpty = computed(() => messages.value.length === 0 && !isFetching.value 
 </template>
 
 <style>
+.msg-fade-enter-active { animation: msg-fade-in 0.4s ease-out; }
+.msg-fade-leave-active { animation: msg-fade-out 0.15s ease-in; }
+@keyframes msg-fade-in {
+    from { opacity: 0; filter: blur(2px); transform: translateY(2px); }
+    to { opacity: 1; filter: blur(0); transform: translateY(0); }
+}
+@keyframes msg-fade-out {
+    from { opacity: 1; }
+    to { opacity: 0; }
+}
+
 @keyframes typing-dot {
     0%, 60%, 100% { opacity: 0.3; transform: translateY(0); }
     30% { opacity: 1; transform: translateY(-3px); }
