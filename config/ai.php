@@ -9,7 +9,7 @@ return [
     |
     | Set AI_DEFAULT_PROVIDER in your .env to switch between providers.
     | Supported: "openai", "anthropic", "groq", "gemini", "deepseek",
-    |            "mistral", "ollama", "openrouter", "xai", "azure"
+    |            "mistral", "ollama", "openrouter", "xai", "azure", "zhipu"
     |
     */
 
@@ -27,6 +27,7 @@ return [
     |   Groq:      llama-3.3-70b-versatile, mixtral-8x7b-32768
     |   Gemini:    gemini-2.0-flash, gemini-1.5-pro
     |   DeepSeek:  deepseek-chat, deepseek-reasoner
+    |   Zhipu:     glm-5.1, glm-5, glm-5-turbo, glm-4.7-flash
     |
     */
 
@@ -58,62 +59,71 @@ return [
     'providers' => [
         'openai' => [
             'driver' => 'openai',
-            'key'    => env('OPENAI_API_KEY'),
-            'url'    => env('OPENAI_URL', 'https://api.openai.com/v1'),
+            'key' => env('OPENAI_API_KEY'),
+            'url' => env('OPENAI_URL', 'https://api.openai.com/v1'),
         ],
 
         'anthropic' => [
             'driver' => 'anthropic',
-            'key'    => env('ANTHROPIC_API_KEY'),
-            'url'    => env('ANTHROPIC_URL', 'https://api.anthropic.com/v1'),
+            'key' => env('ANTHROPIC_API_KEY'),
+            'url' => env('ANTHROPIC_URL', 'https://api.anthropic.com/v1'),
         ],
 
         'groq' => [
             'driver' => 'groq',
-            'key'    => env('GROQ_API_KEY'),
-            'url'    => env('GROQ_URL', 'https://api.groq.com/openai/v1'),
+            'key' => env('GROQ_API_KEY'),
+            'url' => env('GROQ_URL', 'https://api.groq.com/openai/v1'),
         ],
 
         'gemini' => [
             'driver' => 'gemini',
-            'key'    => env('GEMINI_API_KEY'),
+            'key' => env('GEMINI_API_KEY'),
         ],
 
         'deepseek' => [
             'driver' => 'deepseek',
-            'key'    => env('DEEPSEEK_API_KEY'),
+            'key' => env('DEEPSEEK_API_KEY'),
         ],
 
         'mistral' => [
             'driver' => 'mistral',
-            'key'    => env('MISTRAL_API_KEY'),
-            'url'    => env('MISTRAL_URL', 'https://api.mistral.ai/v1'),
+            'key' => env('MISTRAL_API_KEY'),
+            'url' => env('MISTRAL_URL', 'https://api.mistral.ai/v1'),
         ],
 
         'ollama' => [
             'driver' => 'ollama',
-            'key'    => env('OLLAMA_API_KEY', ''),
-            'url'    => env('OLLAMA_BASE_URL', 'http://localhost:11434'),
+            'key' => env('OLLAMA_API_KEY', ''),
+            'url' => env('OLLAMA_BASE_URL', 'http://localhost:11434'),
         ],
 
         'openrouter' => [
             'driver' => 'openrouter',
-            'key'    => env('OPENROUTER_API_KEY'),
+            'key' => env('OPENROUTER_API_KEY'),
         ],
 
         'xai' => [
             'driver' => 'xai',
-            'key'    => env('XAI_API_KEY'),
-            'url'    => env('XAI_URL', 'https://api.x.ai/v1'),
+            'key' => env('XAI_API_KEY'),
+            'url' => env('XAI_URL', 'https://api.x.ai/v1'),
         ],
 
         'azure' => [
-            'driver'               => 'azure',
-            'key'                  => env('AZURE_OPENAI_API_KEY'),
-            'url'                  => env('AZURE_OPENAI_URL'),
-            'api_version'          => env('AZURE_OPENAI_API_VERSION', '2024-10-21'),
-            'deployment'           => env('AZURE_OPENAI_DEPLOYMENT', 'gpt-4o'),
+            'driver' => 'azure',
+            'key' => env('AZURE_OPENAI_API_KEY'),
+            'url' => env('AZURE_OPENAI_URL'),
+            'api_version' => env('AZURE_OPENAI_API_VERSION', '2024-10-21'),
+            'deployment' => env('AZURE_OPENAI_DEPLOYMENT', 'gpt-4o'),
             'embedding_deployment' => env('AZURE_OPENAI_EMBEDDING_DEPLOYMENT', 'text-embedding-3-small'),
+        ],
+
+        // Zhipu AI (GLM series) — OpenAI-compatible endpoint.
+        // Models: glm-5.1, glm-5, glm-5-turbo, glm-4.7-flash (free tier)
+        // Keys:   https://bigmodel.cn/usercenter/proj-mgmt/apikeys
+        'zhipu' => [
+            'driver' => 'openai',
+            'key' => env('ZHIPU_API_KEY'),
+            'url' => env('ZHIPU_URL', 'https://open.bigmodel.cn/api/paas/v4'),
         ],
     ],
 
