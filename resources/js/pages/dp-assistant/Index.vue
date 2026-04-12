@@ -303,8 +303,6 @@ const generalSuggestions = [
 ];
 
 // ── Streaming via @laravel/stream-vue ────────────────────────────────────────
-const streamingMessageId = ref<number | null>(null);
-
 const {
     data: streamData,
     isFetching,
@@ -316,27 +314,26 @@ const {
     {
         csrfToken: getCsrfToken(),
         onFinish() {
-            if (streamData.value && streamingMessageId.value !== null) {
-                // Find the streaming message and finalize it
-                const msg = messages.value.find(m => m.id === streamingMessageId.value);
-                if (msg) msg.text = streamData.value;
+            if (streamData.value) {
+                messages.value.push({
+                    id: ++messageIdCounter,
+                    role: 'assistant',
+                    text: streamData.value,
+                    timestamp: new Date(),
+                });
             }
-            streamingMessageId.value = null;
             clearData();
             if (!conversationId.value) fetchConversationIdFromLatest();
             fetchConversations();
             scrollToBottom();
         },
         onError() {
-            if (!streamData.value) {
-                messages.value.push({
-                    id: ++messageIdCounter,
-                    role: 'assistant',
-                    text: 'Erro ao conectar ao assistente. Verifique se AI_DEFAULT_PROVIDER e a chave da API estão configurados corretamente no .env.',
-                    timestamp: new Date(),
-                });
-            }
-            streamingMessageId.value = null;
+            messages.value.push({
+                id: ++messageIdCounter,
+                role: 'assistant',
+                text: streamData.value || 'Erro ao conectar ao assistente. Verifique se AI_DEFAULT_PROVIDER e a chave da API estão configurados corretamente no .env.',
+                timestamp: new Date(),
+            });
             clearData();
             scrollToBottom();
         },
@@ -369,16 +366,6 @@ function sendMessage(text?: string) {
         id: ++messageIdCounter,
         role: 'user',
         text: question,
-        timestamp: new Date(),
-    });
-
-    // Push placeholder assistant message for streaming
-    const assistantId = ++messageIdCounter;
-    streamingMessageId.value = assistantId;
-    messages.value.push({
-        id: assistantId,
-        role: 'assistant',
-        text: '',
         timestamp: new Date(),
     });
 
@@ -807,30 +794,16 @@ const isEmpty = computed(() => messages.value.length === 0 && !isFetching.value 
 
                             <!-- Bubble -->
                             <div :class="['group relative max-w-[80%]', msg.role === 'user' ? 'items-end' : 'items-start', 'flex flex-col gap-1']">
-                                <Transition name="msg-fade" mode="out-in">
-                                    <!-- Streaming: raw text + pulsing cursor -->
-                                    <p
-                                        v-if="msg.role === 'assistant' && msg.id === streamingMessageId && isStreaming"
-                                        key="streaming"
-                                        :class="['rounded-2xl rounded-bl-sm glass-card px-4 py-3 text-sm leading-relaxed whitespace-pre-wrap']"
-                                    >
-                                        <span>{{ streamData ?? '' }}</span>
-                                        <span class="ml-0.5 inline-block h-3.5 w-1.5 animate-pulse rounded-sm" style="background:#0096ca;" />
-                                    </p>
-                                    <!-- Final: rendered markdown -->
-                                    <div
-                                        v-else
-                                        key="final"
-                                        :class="[
-                                            'rounded-2xl px-4 py-3 text-sm leading-relaxed',
-                                            msg.role === 'user'
-                                                ? 'rounded-br-sm text-white'
-                                                : 'rounded-bl-sm glass-card',
-                                        ]"
-                                        :style="msg.role === 'user' ? 'background:linear-gradient(135deg,#0096ca,#004d80);' : ''"
-                                        v-html="msg.role === 'assistant' ? renderMarkdown(msg.text) : msg.text"
-                                    />
-                                </Transition>
+                                <div
+                                    :class="[
+                                        'rounded-2xl px-4 py-3 text-sm leading-relaxed',
+                                        msg.role === 'user'
+                                            ? 'rounded-br-sm text-white'
+                                            : 'rounded-bl-sm glass-card',
+                                    ]"
+                                    :style="msg.role === 'user' ? 'background:linear-gradient(135deg,#0096ca,#004d80);' : ''"
+                                    v-html="msg.role === 'assistant' ? renderMarkdown(msg.text) : msg.text"
+                                />
                                 <div class="flex items-center gap-2 px-1">
                                     <span class="text-xs text-muted-foreground">{{ formatTime(msg.timestamp) }}</span>
                                     <button
@@ -857,8 +830,22 @@ const isEmpty = computed(() => messages.value.length === 0 && !isFetching.value 
                             </div>
                         </div>
 
-                        <!-- Typing indicator -->
-                        <div v-if="isFetching && !isStreaming" class="flex justify-start gap-3">
+                        <!-- Streaming bubble: raw text + pulsing cursor -->
+                        <div v-if="isStreaming && streamData" class="flex justify-start gap-3">
+                            <div class="flex size-8 shrink-0 items-center justify-center self-end rounded-xl"
+                                 style="background:linear-gradient(135deg,rgba(0,150,202,0.2),rgba(0,30,98,0.3));border:1px solid rgba(0,150,202,0.25);">
+                                <Bot class="size-4" style="color:#0096ca;" />
+                            </div>
+                            <div class="flex max-w-[80%] flex-col gap-1">
+                                <p class="rounded-2xl rounded-bl-sm glass-card px-4 py-3 text-sm leading-relaxed whitespace-pre-wrap">
+                                    <span>{{ streamData }}</span>
+                                    <span class="ml-0.5 inline-block h-3.5 w-1.5 animate-pulse rounded-sm" style="background:#0096ca;" />
+                                </p>
+                            </div>
+                        </div>
+
+                        <!-- Typing indicator (before streaming starts) -->
+                        <div v-else-if="isFetching" class="flex justify-start gap-3">
                             <div class="flex size-8 shrink-0 items-center justify-center self-end rounded-xl"
                                  style="background:linear-gradient(135deg,rgba(0,150,202,0.2),rgba(0,30,98,0.3));border:1px solid rgba(0,150,202,0.25);">
                                 <Bot class="size-4" style="color:#0096ca;" />
