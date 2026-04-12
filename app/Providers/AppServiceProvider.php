@@ -2,7 +2,9 @@
 
 namespace App\Providers;
 
+use App\Models\PjInvoice;
 use App\Models\User;
+use App\Policies\PjInvoicePolicy;
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\DB;
@@ -54,5 +56,6 @@ class AppServiceProvider extends ServiceProvider
     protected function configureGates(): void
     {
         Gate::define('admin', fn (User $user) => $user->isAdmin());
+        Gate::policy(PjInvoice::class, PjInvoicePolicy::class);
     }
 }
