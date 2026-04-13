@@ -4,6 +4,10 @@
 
 Eva é um portal de Departamento Pessoal que centraliza a gestão de pessoas e obrigações trabalhistas do Clube do Valor, substituindo planilhas dispersas e processos manuais por uma plataforma integrada com inteligência artificial.
 
+
+
+https://github.com/user-attachments/assets/ca80a0c6-dba9-4319-b3d7-1ceb285a46be
+
 ---
 
 ## O Problema
